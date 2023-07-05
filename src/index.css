@@ -1,0 +1,14 @@
+:root{
+    --brand: #8785A2;
+    --gray: #F6F6F6;
+    --primary: #FFC7C7;
+    --secondary: #FFE2E2;
+}
+
+html, body, #root, .app__container{
+    height: 100%;
+}
+
+.app__container{
+    display: flex;
+}
