@@ -13,6 +13,9 @@ interface Store {
 
   updateGridCss: (gridCss: Store["gridCss"]) => void;
   addItem: () => void;
+  updateGridItemsPositions: (
+    newGridItemsPositions: GridItemPositionsData
+  ) => void;
 }
 
 export const useDataStore = create<Store>()(
@@ -30,13 +33,19 @@ export const useDataStore = create<Store>()(
         set((state) => {
           state.gridCss = newGridCss;
         }),
-      addItem: () =>
+      addItem: () => {
         set((state) => {
           state.gridItemsPositions.push({
             position: null,
             wasItemMoved: false,
           });
-        }),
+        });
+      },
+      updateGridItemsPositions: (newGridItemsPositions) => {
+        set((state) => {
+          state.gridItemsPositions = newGridItemsPositions;
+        });
+      },
     }))
   )
 );

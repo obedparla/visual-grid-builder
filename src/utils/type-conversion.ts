@@ -1,3 +1,5 @@
-export function getNumberOrNull(maybeStringNumber?: string) {
-  return isNaN(Number(maybeStringNumber)) ? null : Number(maybeStringNumber);
+export function getNumberOrNull(maybeStringNumber: string | null) {
+  return maybeStringNumber === null || isNaN(Number(maybeStringNumber))
+    ? null
+    : Number(maybeStringNumber);
 }

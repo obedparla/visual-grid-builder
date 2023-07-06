@@ -7,12 +7,15 @@ import {
   PreviewRectangle,
   SelectedCellsList,
 } from "../../types/grid.ts";
-import { getCountCellsInGrid, getGridItemPosition } from "../../utils/grid.ts";
-import { filterOutNullOrUndefinedValues } from "../../utils/objects.ts";
+import {
+  getContainerCellsWithinRectangle,
+  getStartAndEndPositionsForRowAndColumnsFromCells,
+} from "../../utils/grid.ts";
 
 import "./grid.css";
 import { useGetCellsCount, useGridStyles } from "../../hooks/grid-styles.ts";
 import { useDataStore } from "../../store/store.ts";
+import { getNumberOrNull } from "../../utils/type-conversion.ts";
 
 export function VisualGrid() {
   const [gridElement, gridElementSet] = useState<HTMLElement | null>(null);
@@ -26,10 +29,6 @@ export function VisualGrid() {
     number | null
   >(null);
 
-  const [draggingElementNodeId, draggingElementNodeIdSet] = useState<
-    number | null
-  >(null);
-
   const [currentlyResizingItemElement, currentlyResizingItemElementSet] =
     useState<Element | null>(null);
 
@@ -38,6 +37,7 @@ export function VisualGrid() {
     currentResizingFromHandlePositionSet,
   ] = useState<HandlePosition | null>(null);
 
+  // rename to "draggingAreaRectangle"
   const [draggingPreviewRectangle, draggingPreviewRectangleSet] =
     useState<PreviewRectangle | null>(null);
 
@@ -46,92 +46,199 @@ export function VisualGrid() {
     left: 0,
   });
 
-  const [clonedDraggingElement, clonedDraggingElementSet] =
-    useState<HTMLElement | null>(null);
-
-  const [recalculateStylesInterval, recalculateStylesIntervalSet] =
-    useState<ReturnType<typeof setInterval> | null>(null);
-
-  const [initialGridItemsPositionData, initialGridItemsPositionDataSet] =
-    useState<GridItemPositionsData>([]);
-  const currentGridItemsPositionData = useDataStore(
+  const savedGridItemsPositionData = useDataStore(
     (state) => state.gridItemsPositions
   );
+  const [currentGridItemsPositionData, currentGridItemsPositionDataSet] =
+    useState<GridItemPositionsData>(savedGridItemsPositionData);
 
-  console.log("currentGridItemsPositionData", currentGridItemsPositionData);
+  const updateGridItemsPositionData = useDataStore(
+    (state) => state.updateGridItemsPositions
+  );
+
+  useEffect(() => {
+    currentGridItemsPositionDataSet(savedGridItemsPositionData);
+  }, [savedGridItemsPositionData]);
 
   const gridStyles = useGridStyles();
 
-  const gridItemsIndexArray = Object.keys(currentGridItemsPositionData).map(
+  const gridItemsIndexArray = Object.keys(savedGridItemsPositionData).map(
     (itemIndex) => Number(itemIndex)
   );
-
-  console.log("gridItemsIndexArray", gridItemsIndexArray);
 
   const cellsCount = useGetCellsCount(gridElement);
 
   const [cellsToDropOver, cellsToDropOverSet] = useState<SelectedCellsList>({});
 
-  const getGridOverlayItemStyle = (itemIndex: number) => {
+  console.log("currentGridItemsPositionData", currentGridItemsPositionData);
+
+  const getItemStyles = (itemIndex: number) => {
     const position = currentGridItemsPositionData[itemIndex]?.position;
 
-    return filterOutNullOrUndefinedValues(position) || undefined;
+    if (!position) return;
+
+    return {
+      gridColumnStart: position.gridColumnStart ?? undefined,
+      gridColumnEnd: position.gridColumnEnd ?? undefined,
+      gridRowStart: position.gridRowStart ?? undefined,
+      gridRowEnd: position.gridRowEnd ?? undefined,
+    };
   };
 
-  // I need to call this in other situations too, I don't know which deps
-  useEffect(() => calculateItemsPosition(), []);
-  function calculateItemsPosition() {
-    // when moving an item, avoid updating the position since that'd replace the "displacement" positions
-    if (currentlyMovingItemIndex !== null) {
-      return;
-    }
-
-    initialGridItemsPositionDataSet([]);
-
-    let itemsInGridCount = gridElement?.children.length;
-
-    [...Array(itemsInGridCount)].forEach((_, itemIndex) => {
-      initialGridItemsPositionData.push({
-        position: getGridItemPosition(gridElement, itemIndex),
-        wasItemMoved: false,
-      });
-    });
-  }
-
   /***** DRAG START ******/
-  const dragStartResizeArea = (
+  function dragStartResizeArea(
     e: React.MouseEvent<HTMLElement>,
     index: number,
     position: HandlePosition
-  ) => {
+  ) {
     e.preventDefault();
     e.stopPropagation();
-  };
+  }
+
+  function mouseDownOnArea(e: React.MouseEvent, index: number) {
+    const target = e.target as HTMLElement | null;
+
+    if (!target) {
+      return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const { top, left, width, height } = target.getBoundingClientRect();
+
+    // save the initial position so that the mouse stays within the element
+    draggingMouseDiffSet({
+      top: e.clientY - top,
+      left: e.clientX - left,
+    });
+
+    draggingPreviewRectangleSet({
+      width,
+      height,
+      top,
+      left,
+    });
+
+    currentlyMovingItemIndexSet(index);
+
+    populateCellsToDropOver();
+  }
+
+  function handleMouseMove(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!draggingPreviewRectangle) return;
+
+    draggingPreviewRectangleSet({
+      ...draggingPreviewRectangle,
+      top: e.clientY - draggingMouseDiff.top,
+      left: e.clientX - draggingMouseDiff.left,
+    });
+
+    populateCellsToDropOver();
+  }
+
+  function handleMouseUp(e: React.MouseEvent) {
+    if (currentlyMovingItemIndex) {
+      updateGridItemsPositionData(currentGridItemsPositionData);
+    }
+
+    currentlyMovingItemIndexSet(null);
+    currentlyResizingItemElementSet(null);
+    draggingPreviewRectangleSet(null);
+    draggingMouseDiffSet({ top: 0, left: 0 });
+    cellsToDropOverSet({});
+    currentResizingFromHandlePositionSet(null);
+  }
+
   ////// DRAG END ///////
 
-  // recalculateAllStylesAndPositions();
+  function populateCellsToDropOver() {
+    if (!draggingPreviewRectangle) return;
+
+    const newCellsToDropOver = getContainerCellsWithinRectangle(
+      draggingPreviewRectangle
+    );
+
+    updateCurrentGridItemsPositionData(newCellsToDropOver);
+    cellsToDropOverSet(newCellsToDropOver);
+  }
+
+  function updateCurrentGridItemsPositionData(
+    newCellsToDropOver: SelectedCellsList
+  ) {
+    if (!gridElement || currentlyMovingItemIndex === null) return;
+
+    const currentlyMovingItemNewPosition =
+      getStartAndEndPositionsForRowAndColumnsFromCells(
+        gridElement,
+        newCellsToDropOver
+      );
+
+    const newCurrentGridItemsPositionData = structuredClone(
+      currentGridItemsPositionData
+    );
+
+    newCurrentGridItemsPositionData[currentlyMovingItemIndex] = {
+      position: {
+        gridRowStart: getNumberOrNull(currentlyMovingItemNewPosition.rowStart),
+        gridColumnEnd: getNumberOrNull(
+          currentlyMovingItemNewPosition.columnEnd
+        ),
+        gridColumnStart: getNumberOrNull(
+          currentlyMovingItemNewPosition.columnStart
+        ),
+        gridRowEnd: getNumberOrNull(currentlyMovingItemNewPosition.rowEnd),
+      },
+      wasItemMoved: true,
+    };
+
+    currentGridItemsPositionDataSet(newCurrentGridItemsPositionData);
+  }
+
   return (
     <>
       <div
         className={classNames({
           "visual-grid__wrapper": true,
-          // "visual-grid__dragging": currentlyMovingItemIndex !== null,
+          "visual-grid__dragging": currentlyMovingItemIndex !== null,
           // "visual-grid__resizing": currentlyResizingItemElement,
           // [`visual-grid__resizing-from-${currentResizingFromHandlePosition}`]:
           //   currentResizingFromHandlePosition,
           // "visual-grid__swapping": currentlySwappingAreas,
         })}
+        onMouseMove={(event) => handleMouseMove(event)}
+        onMouseUp={(event) => handleMouseUp(event)}
       >
+        {draggingPreviewRectangle ? (
+          <div
+            className={"visual-grid__dragging-element visual-grid__item"}
+            style={
+              draggingPreviewRectangle
+                ? {
+                    ...draggingPreviewRectangle,
+                    left: draggingPreviewRectangle.left - 300,
+                  }
+                : undefined
+            }
+          />
+        ) : null}
+
         <div id={"grid"} className="visual-grid__items-grid" style={gridStyles}>
           {gridItemsIndexArray.map((itemIndex) => (
             <div
               key={itemIndex}
-              className="visual-grid__item"
-              style={getGridOverlayItemStyle(itemIndex)}
-              // onMouseDown={(event) => mouseDownOnArea(event, itemIndex)}
+              className={classNames({
+                "visual-grid__item": true,
+                hide__item: itemIndex === currentlyMovingItemIndex,
+              })}
+              style={getItemStyles(itemIndex)}
+              onMouseDown={(event) => mouseDownOnArea(event, itemIndex)}
               data-grid-item-index={itemIndex}
             >
-              {!currentlySwappingAreas && !draggingElementNodeId && (
+              {!currentlySwappingAreas && !currentlyMovingItemIndex && (
                 <GridResizingHandles
                   onMouseDownTopLeft={(event) =>
                     dragStartResizeArea(event, itemIndex, "top-left")

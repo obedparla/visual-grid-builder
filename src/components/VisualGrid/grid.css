@@ -69,6 +69,7 @@
   background: var(--secondary);
 }
 
+
 .visual-grid__wrapper:not(.visual-grid__resizing) .visual-grid__item:hover{
   cursor: move;
 }
@@ -80,6 +81,16 @@
 
 .visual-grid__wrapper:not(.visual-grid__resizing) .visual-grid__item:hover .visual-grid__resizing-handles{
   display: block;
+}
+
+.visual-grid__dragging-element{
+  position: absolute;
+}
+
+.hide__item{
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .visual-grid__dragging .visual-grid__item-drag-preview .visual-grid__resizing-handles,
@@ -155,13 +166,6 @@
 .visual-grid__cell-area-hovering{
   /*background: rgba(137, 188, 255, 0.25);*/
   border: 2px dashed #3b82f6;
-}
-
-.visual-grid__resizing .visual-grid__items-grid,
-.visual-grid__resizing .visual-grid__item,
-.visual-grid__dragging .visual-grid__items-grid,
-.visual-grid__dragging .visual-grid__item{
-  background: initial;
 }
 
 .visual-grid__resizing .visual-grid__action-button,

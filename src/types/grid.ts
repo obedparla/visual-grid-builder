@@ -13,10 +13,10 @@ export type HandlePosition =
 
 // the actual value in the store
 export type ColumnAndRowPosition = {
-  rowStart: string | undefined;
-  rowEnd: string | undefined;
-  columnStart: string | undefined;
-  columnEnd: string | undefined;
+  rowStart: string | null;
+  rowEnd: string | null;
+  columnStart: string | null;
+  columnEnd: string | null;
 };
 
 export type SelectedCellsList = { [key: string]: boolean };
@@ -25,7 +25,6 @@ export type GridItemPositionsData = {
   wasItemMoved: boolean;
 }[];
 
-// the value in the UI
 export type GridItemPosition = {
   gridColumnStart: number | null;
   gridColumnEnd: number | null;

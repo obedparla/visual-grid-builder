@@ -1,11 +1,9 @@
 import {
   ColumnAndRowPosition,
-  GridItemPosition,
   PreviewRectangle,
   SelectedCellsList,
 } from "../types/grid.ts";
 import { isElementWithinBoundingRectangle } from "./dom.ts";
-import { getNumberOrNull } from "./type-conversion.ts";
 export function getCountCellsInGrid(gridElement: Element | null) {
   if (!gridElement) return 0;
   const { columnWidths, rowHeights } = getGridRowsAndColumnsValue(gridElement);
@@ -40,63 +38,6 @@ export function getGridRowsAndColumnsValue(gridElement: Element) {
   };
 }
 
-function getItemElementFromIndex(gridElement: Element, itemIndex: number) {
-  if (
-    !gridElement ||
-    !gridElement.children.length ||
-    !gridElement.children[itemIndex]
-  ) {
-    return null;
-  }
-
-  return gridElement.children[itemIndex];
-}
-
-export function getGridItemPosition(
-  gridElement: Element | null,
-  itemIndex: number
-): GridItemPosition | null {
-  if (!gridElement) return null;
-
-  const itemElement = getItemElementFromIndex(gridElement, itemIndex);
-
-  if (!itemElement) {
-    return null;
-  }
-
-  const cellsItemIsOver = getContainerCellsWithinRectangle(
-    itemElement.getBoundingClientRect()
-  );
-
-  // We can't get the values from DOM since an item may be "auto" positioned
-  // Instead get the position by checking which cells the item is over
-  const { columnStart, columnEnd, rowStart, rowEnd } =
-    getStartAndEndPositionsForRowAndColumnsFromCells(
-      gridElement,
-      cellsItemIsOver
-    );
-
-  const position = {
-    gridColumnStart: getNumberOrNull(columnStart),
-    gridColumnEnd: getNumberOrNull(columnEnd),
-    gridRowStart: getNumberOrNull(rowStart),
-    gridRowEnd: getNumberOrNull(rowEnd),
-  };
-
-  // only return position if it has a value. When re-calculating, or opening the overlay for the first time
-  // the positions will be all null, and we want to know the difference
-  if (
-    position.gridColumnStart ||
-    position.gridColumnEnd ||
-    position.gridRowStart ||
-    position.gridRowEnd
-  ) {
-    return position;
-  }
-
-  return null;
-}
-
 export function getContainerCellsWithinRectangle(
   selectedItemRectangle: PreviewRectangle
 ) {
@@ -117,7 +58,9 @@ export function getContainerCellsWithinRectangle(
   return containedCells;
 }
 
-function getOnlySelectedCellsIndexesArray(selectedCells: SelectedCellsList) {
+export function getOnlySelectedCellsIndexesArray(
+  selectedCells: SelectedCellsList
+) {
   // turn selected cells from {'1': true, '2': false, '3': true}.
   // into [1, 3]
   return Object.entries(selectedCells)
@@ -135,17 +78,16 @@ function getColumnAndRowByCellIndex(gridElement: Element, index: number) {
   return { row: rowPosition, column: columnPosition };
 }
 
-function getStartAndEndPositionsForRowAndColumnsFromCells(
+export function getStartAndEndPositionsForRowAndColumnsFromCells(
   gridElement: Element,
   selectedCells: SelectedCellsList
 ): ColumnAndRowPosition {
   const cellIndexes = getOnlySelectedCellsIndexesArray(selectedCells);
 
-  // undefined since these will be saved as properties
-  let rowStart: number | undefined = undefined;
-  let rowEnd: number | undefined = undefined;
-  let columnStart: number | undefined = undefined;
-  let columnEnd: number | undefined = undefined;
+  let rowStart: number | null = null;
+  let rowEnd: number | null = null;
+  let columnStart: number | null = null;
+  let columnEnd: number | null = null;
 
   cellIndexes.forEach((cellIndexToDrop) => {
     const { row, column } = getColumnAndRowByCellIndex(
@@ -153,19 +95,19 @@ function getStartAndEndPositionsForRowAndColumnsFromCells(
       cellIndexToDrop
     );
 
-    if (rowStart === undefined || row < rowStart) {
+    if (rowStart === null || row < rowStart) {
       rowStart = row;
     }
 
-    if (rowEnd === undefined || row > rowEnd) {
+    if (rowEnd === null || row > rowEnd) {
       rowEnd = row;
     }
 
-    if (columnStart === undefined || column < columnStart) {
+    if (columnStart === null || column < columnStart) {
       columnStart = column;
     }
 
-    if (columnEnd === undefined || column > columnEnd) {
+    if (columnEnd === null || column > columnEnd) {
       columnEnd = column;
     }
   });
