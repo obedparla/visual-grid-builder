@@ -1,4 +1,4 @@
-import { Button, Text } from "@chakra-ui/react";
+import { Button, Flex, Text } from "@chakra-ui/react";
 
 import "./sidebar.css";
 import { NumberInputSlider } from "../../reusable-components/NumberInputSlider/NumberInputSlider.tsx";
@@ -8,6 +8,8 @@ export function Sidebar() {
   const gridCss = useDataStore((state) => state.gridCss);
   const updateColumnsNumber = useDataStore((state) => state.updateGridCss);
   const addItem = useDataStore((state) => state.addItem);
+  const updateFlag = useDataStore((state) => state.updateFlag);
+  const removingItems = useDataStore((state) => state.flags.removingItems);
 
   return (
     <>
@@ -21,7 +23,7 @@ export function Sidebar() {
               onChange={(columnsNumber: number) =>
                 updateColumnsNumber({ ...gridCss, columnsNumber })
               }
-              min={3}
+              min={2}
               max={20}
             />
           </div>
@@ -34,7 +36,7 @@ export function Sidebar() {
               onChange={(rowsNumber: number) =>
                 updateColumnsNumber({ ...gridCss, rowsNumber: rowsNumber })
               }
-              min={3}
+              min={2}
               max={20}
             />
           </div>
@@ -53,9 +55,20 @@ export function Sidebar() {
           </div>
         </div>
 
-        <Button colorScheme="teal" variant="outline" mt={4} onClick={addItem}>
-          Add Grid Item
-        </Button>
+        <Flex gap={4}>
+          <Button colorScheme="teal" variant="outline" mt={4} onClick={addItem}>
+            Add Item
+          </Button>
+
+          <Button
+            colorScheme="teal"
+            variant={removingItems ? "solid" : "outline"}
+            mt={4}
+            onClick={() => updateFlag("removingItems", !removingItems)}
+          >
+            {removingItems ? "Removing items" : "Remove Items"}
+          </Button>
+        </Flex>
       </div>
     </>
   );

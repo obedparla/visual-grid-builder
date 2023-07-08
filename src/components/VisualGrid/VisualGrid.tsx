@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import * as classNames from "classnames";
-import GridResizingHandles from "../GridResizingHandles.tsx";
+import GridResizingHandles from "./components/GridResizingHandles.tsx";
 import {
   GridItemPositionsData,
   HandlePosition,
@@ -19,6 +19,9 @@ import { getNumberOrNull } from "../../utils/type-conversion.ts";
 
 export function VisualGrid() {
   const [gridElement, gridElementSet] = useState<HTMLElement | null>(null);
+
+  const removingItems = useDataStore((state) => state.flags.removingItems);
+  const removeItem = useDataStore((state) => state.removeItem);
 
   useEffect(() => {
     gridElementSet(document.getElementById("grid"));
@@ -70,8 +73,6 @@ export function VisualGrid() {
 
   const [cellsToDropOver, cellsToDropOverSet] = useState<SelectedCellsList>({});
 
-  console.log("currentGridItemsPositionData", currentGridItemsPositionData);
-
   const getItemStyles = (itemIndex: number) => {
     const position = currentGridItemsPositionData[itemIndex]?.position;
 
@@ -95,7 +96,7 @@ export function VisualGrid() {
     e.stopPropagation();
   }
 
-  function mouseDownOnArea(e: React.MouseEvent, index: number) {
+  function handleMouseDownOnArea(e: React.MouseEvent, index: number) {
     const target = e.target as HTMLElement | null;
 
     if (!target) {
@@ -104,6 +105,13 @@ export function VisualGrid() {
 
     e.preventDefault();
     e.stopPropagation();
+
+    if (removingItems) {
+      console.log("removing items", index);
+      removeItem(index);
+
+      return;
+    }
 
     const { top, left, width, height } = target.getBoundingClientRect();
 
@@ -219,6 +227,7 @@ export function VisualGrid() {
               draggingPreviewRectangle
                 ? {
                     ...draggingPreviewRectangle,
+                    // 300 is the width of the sidebar. May need to make this more elegant later
                     left: draggingPreviewRectangle.left - 300,
                   }
                 : undefined
@@ -233,27 +242,41 @@ export function VisualGrid() {
               className={classNames({
                 "visual-grid__item": true,
                 hide__item: itemIndex === currentlyMovingItemIndex,
+                "visual-grid__removing-items": removingItems,
               })}
               style={getItemStyles(itemIndex)}
-              onMouseDown={(event) => mouseDownOnArea(event, itemIndex)}
+              onMouseDown={(event) => handleMouseDownOnArea(event, itemIndex)}
               data-grid-item-index={itemIndex}
             >
-              {!currentlySwappingAreas && !currentlyMovingItemIndex && (
-                <GridResizingHandles
-                  onMouseDownTopLeft={(event) =>
-                    dragStartResizeArea(event, itemIndex, "top-left")
-                  }
-                  onMouseDownTopRight={(event) =>
-                    dragStartResizeArea(event, itemIndex, "top-right")
-                  }
-                  onMouseDownBottomLeft={(event) =>
-                    dragStartResizeArea(event, itemIndex, "bottom-left")
-                  }
-                  onMouseDownBottomRight={(event) =>
-                    dragStartResizeArea(event, itemIndex, "bottom-right")
-                  }
-                />
-              )}
+              {removingItems ? (
+                <div className={"visual-grid__remove-item"}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="1em"
+                    viewBox="0 0 448 512"
+                  >
+                    <path d="M393.4 41.4c12.5-12.5 32.8-12.5 45.3 0s12.5 32.8 0 45.3L269.3 256 438.6 425.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L224 301.3 54.6 470.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L178.7 256 9.4 86.6C-3.1 74.1-3.1 53.9 9.4 41.4s32.8-12.5 45.3 0L224 210.7 393.4 41.4z" />
+                  </svg>
+                </div>
+              ) : null}
+              {!removingItems &&
+                !currentlySwappingAreas &&
+                !currentlyMovingItemIndex && (
+                  <GridResizingHandles
+                    onMouseDownTopLeft={(event) =>
+                      dragStartResizeArea(event, itemIndex, "top-left")
+                    }
+                    onMouseDownTopRight={(event) =>
+                      dragStartResizeArea(event, itemIndex, "top-right")
+                    }
+                    onMouseDownBottomLeft={(event) =>
+                      dragStartResizeArea(event, itemIndex, "bottom-left")
+                    }
+                    onMouseDownBottomRight={(event) =>
+                      dragStartResizeArea(event, itemIndex, "bottom-right")
+                    }
+                  />
+                )}
             </div>
           ))}
         </div>
@@ -262,7 +285,7 @@ export function VisualGrid() {
             <div
               key={index}
               className={`visual-grid__cell ${
-                cellsToDropOver[index] ? "visual-grid__cell-area-hovering" : ""
+                cellsToDropOver[index] ? "visual-grid__populated-cell" : ""
               }`}
               data-grid-cell-index={index}
             />

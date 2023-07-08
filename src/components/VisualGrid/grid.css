@@ -57,6 +57,10 @@
   cursor: move;
 }
 
+.visual-grid__wrapper:not(.visual-grid__resizing) .visual-grid__item.visual-grid__removing-items:hover{
+  cursor: pointer;
+}
+
 .visual-grid__swapping .visual-grid__item-drag-preview,
 .visual-grid__swapping .visual-grid__item:hover{
   cursor: pointer !important;
@@ -141,6 +145,10 @@
   border: 1px dashed #60a5fa;
 }
 
+.visual-grid__populated-cell{
+  border: 2px dashed #3b82f6;
+}
+
 .visual-grid__resizing .visual-grid__action-button,
 .visual-grid__dragging .visual-grid__action-button{
   visibility: hidden;
@@ -154,4 +162,11 @@
 .grid-item__hidden{
   opacity: 0;
   pointer-events: none;
+}
+
+.visual-grid__remove-item {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 12px;
 }
