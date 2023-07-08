@@ -20,7 +20,11 @@ export function useGetCellsCount(gridElement: HTMLElement | null) {
 
   useEffect(() => {
     cellsCountSet(getCountCellsInGrid(gridElement));
-  }, [gridStyles.gridTemplateColumns, gridStyles.gridTemplateRows]);
+  }, [
+    gridElement,
+    gridStyles.gridTemplateColumns,
+    gridStyles.gridTemplateRows,
+  ]);
 
   return cellsCount;
 }
