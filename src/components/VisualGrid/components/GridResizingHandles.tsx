@@ -1,4 +1,5 @@
 import React, { MouseEvent } from "react";
+import { ChevronIcon } from "./ChevronIcon.tsx";
 
 interface GridResizingHandlesProps {
   onMouseDownTopLeft: (event: MouseEvent<HTMLDivElement>) => void;
@@ -17,19 +18,27 @@ const GridResizingHandles: React.FC<GridResizingHandlesProps> = ({
     <div
       className="visual-grid__resizing-handle__top-left"
       onMouseDown={onMouseDownTopLeft}
-    ></div>
+    >
+      <ChevronIcon />
+    </div>
     <div
       className="visual-grid__resizing-handle__top-right"
       onMouseDown={onMouseDownTopRight}
-    ></div>
+    >
+      <ChevronIcon />
+    </div>
     <div
       className="visual-grid__resizing-handle__bottom-left"
       onMouseDown={onMouseDownBottomLeft}
-    ></div>
+    >
+      <ChevronIcon />
+    </div>
     <div
       className="visual-grid__resizing-handle__bottom-right"
       onMouseDown={onMouseDownBottomRight}
-    ></div>
+    >
+      <ChevronIcon />
+    </div>
   </div>
 );
 

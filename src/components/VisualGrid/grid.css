@@ -36,23 +36,6 @@
   gap: 6px;
 }
 
-
-.visual-grid__action-button{
-  transition: 0.2s opacity ease-in, 0.2s visibility ease-out;
-  padding: 6px;
-  border-radius: 4px;
-  background: hsl(219deg 25% 29%);
-  color: hsl(212deg 96% 94%);
-  border: 1px solid hsl(219deg 25% 23%);
-  cursor: pointer;
-}
-
-.visual-grid__action-button--active{
-  background: hsl(212deg 96% 94%);
-  color: hsl(219deg 25% 29%);
-  border: 1px solid hsl(219deg 25% 29%);
-}
-
 .visual-grid__cells{
   position: absolute;
   top: 0;
@@ -110,40 +93,35 @@
 .visual-grid__resizing-handles > div {
   width: 14px;
   height: 14px;
-  filter: drop-shadow(0px 0px 1px hsl(0deg 0% 0% / 65%));
 }
 
 .visual-grid__resizing-handle__top-left{
   position: absolute;
-  top: 12px;
-  left: 12px;
-  border-top: 2px solid white;
-  border-left: 2px solid white;
+  top: 10px;
+  left: 10px;
   cursor: nwse-resize;
+  transform: rotate(135deg);
 }
 .visual-grid__resizing-handle__top-right{
   position: absolute;
-  top: 12px;
-  right: 12px;
-  border-top: 2px solid white;
-  border-right: 2px solid white;
+  top: 10px;
+  right: 10px;
   cursor: nesw-resize;
+  transform: rotate(225deg);
 }
 .visual-grid__resizing-handle__bottom-left{
   position: absolute;
-  bottom: 12px;
-  left: 12px;
-  border-bottom: 2px solid white;
-  border-left: 2px solid white;
+  bottom: 10px;
+  left: 10px;
   cursor: nesw-resize;
+  transform: rotate(45deg);
 }
 .visual-grid__resizing-handle__bottom-right{
   position: absolute;
-  bottom: 12px;
-  right: 12px;
-  border-bottom: 2px solid white;
-  border-right: 2px solid white;
+  bottom: 10px;
+  right: 10px;
   cursor: nwse-resize;
+  transform: rotate(315deg);
 }
 
 .visual-grid__resizing-from-top-left{
@@ -161,11 +139,6 @@
 
 .visual-grid__cell{
   border: 1px dashed #60a5fa;
-}
-
-.visual-grid__cell-area-hovering{
-  /*background: rgba(137, 188, 255, 0.25);*/
-  border: 2px dashed #3b82f6;
 }
 
 .visual-grid__resizing .visual-grid__action-button,
