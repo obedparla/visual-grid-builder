@@ -8,14 +8,17 @@ import {
   SelectedCellsList,
 } from "../../types/grid.ts";
 import {
-  getContainerCellsWithinRectangle,
+  getCellsWithinRectangle,
+  getSelectedCellsIndexes,
   getStartAndEndPositionsForRowAndColumnsFromCells,
+  updatePreviewRectangleWhenResizing,
 } from "../../utils/grid.ts";
 
 import "./grid.css";
 import { useGetCellsCount, useGridStyles } from "../../hooks/grid-styles.ts";
 import { useDataStore } from "../../store/store.ts";
 import { getNumberOrNull } from "../../utils/type-conversion.ts";
+import { isEqual } from "lodash";
 
 export function VisualGrid() {
   const [gridElement, gridElementSet] = useState<HTMLElement | null>(null);
@@ -129,8 +132,6 @@ export function VisualGrid() {
     });
 
     currentlyMovingItemIndexSet(index);
-
-    populateCellsToDropOver();
   }
 
   function handleMouseMove(e: React.MouseEvent) {
@@ -163,21 +164,18 @@ export function VisualGrid() {
 
   ////// DRAG END ///////
 
-  function populateCellsToDropOver() {
-    if (!draggingPreviewRectangle) return;
+  useEffect(() => {
+    if (
+      !draggingPreviewRectangle ||
+      !gridElement ||
+      currentlyMovingItemIndex === null
+    ) {
+      return;
+    }
 
-    const newCellsToDropOver = getContainerCellsWithinRectangle(
+    const newCellsToDropOver = getCellsWithinRectangle(
       draggingPreviewRectangle
     );
-
-    updateCurrentGridItemsPositionData(newCellsToDropOver);
-    cellsToDropOverSet(newCellsToDropOver);
-  }
-
-  function updateCurrentGridItemsPositionData(
-    newCellsToDropOver: SelectedCellsList
-  ) {
-    if (!gridElement || currentlyMovingItemIndex === null) return;
 
     const currentlyMovingItemNewPosition =
       getStartAndEndPositionsForRowAndColumnsFromCells(
@@ -203,8 +201,24 @@ export function VisualGrid() {
       wasItemMoved: true,
     };
 
+    // No need to update if positions are the same.
+    // Prevents going into an infinite loop of updates caused by changing state that is in the deps
+    // since React dep's compares objects by reference
+    if (
+      isEqual(newCurrentGridItemsPositionData, currentGridItemsPositionData)
+    ) {
+      return;
+    }
+
     currentGridItemsPositionDataSet(newCurrentGridItemsPositionData);
-  }
+
+    cellsToDropOverSet(newCellsToDropOver);
+  }, [
+    currentGridItemsPositionData,
+    currentlyMovingItemIndex,
+    draggingPreviewRectangle,
+    gridElement,
+  ]);
 
   return (
     <>
