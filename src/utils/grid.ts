@@ -5,6 +5,8 @@ import {
   SelectedCellsList,
 } from "../types/grid.ts";
 import { isElementWithinBoundingRectangle } from "./dom.ts";
+import { useDataStore } from "../store/store.ts";
+import { useGridStyles } from "../hooks/grid-styles.ts";
 export function getCountCellsInGrid(gridElement: Element | null) {
   if (!gridElement) return 0;
   const { columnWidths, rowHeights } = getGridRowsAndColumnsValue(gridElement);
