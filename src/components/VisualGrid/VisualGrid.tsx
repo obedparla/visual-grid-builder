@@ -97,6 +97,22 @@ export function VisualGrid() {
   ) {
     e.preventDefault();
     e.stopPropagation();
+
+    const itemElement = (e.target as HTMLElement).closest(".visual-grid__item");
+
+    if (!itemElement) return;
+
+    const { top, left, width, height } = itemElement.getBoundingClientRect();
+
+    currentlyResizingItemElementSet(itemElement);
+    currentlyMovingItemIndexSet(index);
+    currentResizingFromHandlePositionSet(position);
+    draggingPreviewRectangleSet({
+      width,
+      height,
+      top,
+      left,
+    });
   }
 
   function handleMouseDownOnArea(e: React.MouseEvent, index: number) {
@@ -110,7 +126,6 @@ export function VisualGrid() {
     e.stopPropagation();
 
     if (removingItems) {
-      console.log("removing items", index);
       removeItem(index);
 
       return;
@@ -118,7 +133,7 @@ export function VisualGrid() {
 
     const { top, left, width, height } = target.getBoundingClientRect();
 
-    // save the initial position so that the mouse stays within the element
+    // save the delta to calculate the diff and leave the mouse in the same spot within the element
     draggingMouseDiffSet({
       top: e.clientY - top,
       left: e.clientX - left,
@@ -140,13 +155,52 @@ export function VisualGrid() {
 
     if (!draggingPreviewRectangle) return;
 
-    draggingPreviewRectangleSet({
-      ...draggingPreviewRectangle,
-      top: e.clientY - draggingMouseDiff.top,
-      left: e.clientX - draggingMouseDiff.left,
-    });
+    if (currentlyResizingItemElement) {
+      resizeAreaOnMouseMove(e);
+    } else {
+      draggingPreviewRectangleSet({
+        ...draggingPreviewRectangle,
+        top: e.clientY - draggingMouseDiff.top,
+        left: e.clientX - draggingMouseDiff.left,
+      });
+    }
+  }
 
-    populateCellsToDropOver();
+  function resizeAreaOnMouseMove(e: React.MouseEvent) {
+    if (!draggingPreviewRectangle) return;
+
+    const newDraggingPreviewRectangle = updatePreviewRectangleWhenResizing(
+      e.clientX,
+      e.clientY,
+      draggingPreviewRectangle,
+      currentResizingFromHandlePosition
+    );
+
+    // compare the new "position" (aka active cells) with the old one
+    const initialCells = getCellsWithinRectangle(draggingPreviewRectangle);
+    const finalCells = getCellsWithinRectangle(newDraggingPreviewRectangle);
+
+    if (isEqual(initialCells, finalCells)) {
+      return;
+    }
+
+    const cellIndexes = getSelectedCellsIndexes(finalCells);
+    if (cellIndexes.length === 0) return;
+
+    const cellElements = document.querySelectorAll(".visual-grid__cell");
+
+    if (cellElements.length === 0) return;
+
+    const firstCell = cellElements[cellIndexes[0]].getBoundingClientRect();
+    const lastCell =
+      cellElements[cellIndexes[cellIndexes.length - 1]].getBoundingClientRect();
+
+    draggingPreviewRectangleSet({
+      left: firstCell.left,
+      top: firstCell.top,
+      width: lastCell.right - firstCell.left,
+      height: lastCell.bottom - firstCell.top,
+    });
   }
 
   function handleMouseUp(e: React.MouseEvent) {

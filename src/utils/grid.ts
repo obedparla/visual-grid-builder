@@ -1,5 +1,6 @@
 import {
   ColumnAndRowPosition,
+  HandlePosition,
   PreviewRectangle,
   SelectedCellsList,
 } from "../types/grid.ts";
@@ -38,7 +39,7 @@ export function getGridRowsAndColumnsValue(gridElement: Element) {
   };
 }
 
-export function getContainerCellsWithinRectangle(
+export function getCellsWithinRectangle(
   selectedItemRectangle: PreviewRectangle
 ) {
   const containedCells: SelectedCellsList = {};
@@ -58,9 +59,7 @@ export function getContainerCellsWithinRectangle(
   return containedCells;
 }
 
-export function getOnlySelectedCellsIndexesArray(
-  selectedCells: SelectedCellsList
-) {
+export function getSelectedCellsIndexes(selectedCells: SelectedCellsList) {
   // turn selected cells from {'1': true, '2': false, '3': true}.
   // into [1, 3]
   return Object.entries(selectedCells)
@@ -82,7 +81,7 @@ export function getStartAndEndPositionsForRowAndColumnsFromCells(
   gridElement: Element,
   selectedCells: SelectedCellsList
 ): ColumnAndRowPosition {
-  const cellIndexes = getOnlySelectedCellsIndexesArray(selectedCells);
+  const cellIndexes = getSelectedCellsIndexes(selectedCells);
 
   let rowStart: number | null = null;
   let rowEnd: number | null = null;
@@ -119,4 +118,76 @@ export function getStartAndEndPositionsForRowAndColumnsFromCells(
     rowEnd: rowEnd && `${rowEnd + 1}`,
     columnEnd: columnEnd && `${columnEnd + 1}`,
   };
+}
+
+export function updatePreviewRectangleWhenResizing(
+  clientX: number,
+  clientY: number,
+  draggingPreviewRectangle: PreviewRectangle,
+  resizingFromPosition: HandlePosition | null
+): PreviewRectangle {
+  if (!resizingFromPosition) return draggingPreviewRectangle;
+
+  const updatedDraggingPreviewRectangle = structuredClone(
+    draggingPreviewRectangle
+  );
+
+  const previewRectanglePosition = {
+    right:
+      updatedDraggingPreviewRectangle.left +
+      updatedDraggingPreviewRectangle.width,
+    left: updatedDraggingPreviewRectangle.left,
+    top: updatedDraggingPreviewRectangle.top,
+    bottom:
+      updatedDraggingPreviewRectangle.top +
+      updatedDraggingPreviewRectangle.height,
+  };
+
+  const updatePreviewRectangleWhenDraggingLeft = () => {
+    if (clientX < previewRectanglePosition.right) {
+      const leftDelta = updatedDraggingPreviewRectangle.left - clientX;
+
+      updatedDraggingPreviewRectangle.left = clientX;
+      updatedDraggingPreviewRectangle.width += leftDelta;
+    }
+  };
+
+  const updatePreviewRectangleWhenDraggingUp = () => {
+    if (clientY < previewRectanglePosition.bottom) {
+      const topDelta = updatedDraggingPreviewRectangle.top - clientY;
+
+      updatedDraggingPreviewRectangle.top = clientY;
+      updatedDraggingPreviewRectangle.height += topDelta;
+    }
+  };
+
+  const updatePreviewRectangleWhenDraggingDown = () => {
+    if (clientY > previewRectanglePosition.top) {
+      updatedDraggingPreviewRectangle.height =
+        clientY - updatedDraggingPreviewRectangle.top;
+    }
+  };
+
+  const updatePreviewRectangleWhenDraggingRight = () => {
+    if (clientX > previewRectanglePosition.left) {
+      updatedDraggingPreviewRectangle.width =
+        clientX - updatedDraggingPreviewRectangle.left;
+    }
+  };
+
+  if (resizingFromPosition === "top-left") {
+    updatePreviewRectangleWhenDraggingLeft();
+    updatePreviewRectangleWhenDraggingUp();
+  } else if (resizingFromPosition === "bottom-left") {
+    updatePreviewRectangleWhenDraggingLeft();
+    updatePreviewRectangleWhenDraggingDown();
+  } else if (resizingFromPosition === "top-right") {
+    updatePreviewRectangleWhenDraggingRight();
+    updatePreviewRectangleWhenDraggingUp();
+  } else if (resizingFromPosition === "bottom-right") {
+    updatePreviewRectangleWhenDraggingRight();
+    updatePreviewRectangleWhenDraggingDown();
+  }
+
+  return updatedDraggingPreviewRectangle;
 }
