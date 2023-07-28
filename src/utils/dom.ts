@@ -1,5 +1,3 @@
-import { getNumberOrNull } from "./type-conversion.ts";
-
 export function isElementWithinBoundingRectangle(
   boundingRectangle: {
     left: number;

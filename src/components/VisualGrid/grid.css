@@ -71,7 +71,7 @@
 }
 
 .visual-grid__dragging-element{
-  position: absolute;
+  position: fixed;
 }
 
 .hide__item{

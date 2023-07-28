@@ -295,15 +295,7 @@ export function VisualGrid() {
         {draggingPreviewRectangle ? (
           <div
             className={"visual-grid__dragging-element visual-grid__item"}
-            style={
-              draggingPreviewRectangle
-                ? {
-                    ...draggingPreviewRectangle,
-                    // 300 is the width of the sidebar. May need to make this more elegant later
-                    left: draggingPreviewRectangle.left - 300,
-                  }
-                : undefined
-            }
+            style={draggingPreviewRectangle || undefined}
           />
         ) : null}
 
