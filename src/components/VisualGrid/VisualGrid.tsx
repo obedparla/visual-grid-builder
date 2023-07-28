@@ -9,6 +9,7 @@ import {
 } from "../../types/grid.ts";
 import {
   getCellsWithinRectangle,
+  getCellsWithinRectangleMidpoint,
   getSelectedCellsIndexes,
   getStartAndEndPositionsForRowAndColumnsFromCells,
   updatePreviewRectangleWhenResizing,
@@ -25,6 +26,7 @@ export function VisualGrid() {
 
   const removingItems = useDataStore((state) => state.flags.removingItems);
   const removeItem = useDataStore((state) => state.removeItem);
+  const gap = useDataStore((store) => store.gridCss.gap);
 
   useEffect(() => {
     gridElementSet(document.getElementById("grid"));
@@ -76,7 +78,7 @@ export function VisualGrid() {
 
   const [cellsToDropOver, cellsToDropOverSet] = useState<SelectedCellsList>({});
 
-  const getItemStyles = (itemIndex: number) => {
+  function getItemStyles(itemIndex: number) {
     const position = currentGridItemsPositionData[itemIndex]?.position;
 
     if (!position) return;
@@ -87,7 +89,7 @@ export function VisualGrid() {
       gridRowStart: position.gridRowStart ?? undefined,
       gridRowEnd: position.gridRowEnd ?? undefined,
     };
-  };
+  }
 
   /***** DRAG START ******/
   function dragStartResizeArea(
@@ -227,8 +229,9 @@ export function VisualGrid() {
       return;
     }
 
-    const newCellsToDropOver = getCellsWithinRectangle(
-      draggingPreviewRectangle
+    const newCellsToDropOver = getCellsWithinRectangleMidpoint(
+      draggingPreviewRectangle,
+      gap
     );
 
     const currentlyMovingItemNewPosition =
@@ -272,6 +275,7 @@ export function VisualGrid() {
     currentlyMovingItemIndex,
     draggingPreviewRectangle,
     gridElement,
+    gap,
   ]);
 
   return (

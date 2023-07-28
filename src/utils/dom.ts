@@ -1,3 +1,5 @@
+import { getNumberOrNull } from "./type-conversion.ts";
+
 export function isElementWithinBoundingRectangle(
   boundingRectangle: {
     left: number;
@@ -18,5 +20,31 @@ export function isElementWithinBoundingRectangle(
       elementRectangle.left + marginWidth &&
     boundingRectangle.top + boundingRectangle.height >=
       elementRectangle.top + marginHeight
+  );
+}
+
+export function isElementWithinMidPointOfRectangle(
+  boundingRectangle: {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+  },
+  elementRectangle: DOMRect,
+  gapArg: number
+) {
+  // The gap messes up the math for the rectangle
+  // without accounting for it, it's possible for an element to select the wrong elements
+  const gap = gapArg / 2;
+
+  return (
+    boundingRectangle.left - gap <=
+      elementRectangle.width / 2 + elementRectangle.left &&
+    boundingRectangle.top - gap <=
+      elementRectangle.height / 2 + elementRectangle.top &&
+    boundingRectangle.left + boundingRectangle.width + gap >=
+      elementRectangle.right - elementRectangle.width / 2 &&
+    boundingRectangle.top + boundingRectangle.height + gap >=
+      elementRectangle.bottom - elementRectangle.height / 2
   );
 }

@@ -4,9 +4,10 @@ import {
   PreviewRectangle,
   SelectedCellsList,
 } from "../types/grid.ts";
-import { isElementWithinBoundingRectangle } from "./dom.ts";
-import { useDataStore } from "../store/store.ts";
-import { useGridStyles } from "../hooks/grid-styles.ts";
+import {
+  isElementWithinBoundingRectangle,
+  isElementWithinMidPointOfRectangle,
+} from "./dom.ts";
 export function getCountCellsInGrid(gridElement: Element | null) {
   if (!gridElement) return 0;
   const { columnWidths, rowHeights } = getGridRowsAndColumnsValue(gridElement);
@@ -56,6 +57,29 @@ export function getCellsWithinRectangle(
       selectedItemRectangle,
       e.getBoundingClientRect()
     );
+  });
+
+  return containedCells;
+}
+
+export function getCellsWithinRectangleMidpoint(
+  selectedItemRectangle: PreviewRectangle,
+  gap: number
+) {
+  const containedCells: SelectedCellsList = {};
+  const cellElements = document.querySelectorAll(
+    ".visual-grid__cell"
+  ) as NodeListOf<HTMLElement>;
+
+  cellElements.forEach((e) => {
+    if (!e.dataset.gridCellIndex) return;
+
+    containedCells[e.dataset.gridCellIndex] =
+      isElementWithinMidPointOfRectangle(
+        selectedItemRectangle,
+        e.getBoundingClientRect(),
+        gap
+      );
   });
 
   return containedCells;
