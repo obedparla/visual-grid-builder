@@ -28,6 +28,7 @@ export function VisualGrid() {
   const removeItem = useDataStore((state) => state.removeItem);
   const gap = useDataStore((store) => store.gridCss.gap);
 
+  // Set grid Element on "mount"
   useEffect(() => {
     gridElementSet(document.getElementById("grid"));
   }, []);
@@ -64,6 +65,7 @@ export function VisualGrid() {
     (state) => state.updateGridItemsPositions
   );
 
+  // Update the current positions when we commit new positions after dragging/resizing
   useEffect(() => {
     currentGridItemsPositionDataSet(savedGridItemsPositionData);
   }, [savedGridItemsPositionData]);
@@ -221,55 +223,74 @@ export function VisualGrid() {
   ////// DRAG END ///////
 
   useEffect(() => {
-    if (
-      !draggingPreviewRectangle ||
-      !gridElement ||
-      currentlyMovingItemIndex === null
-    ) {
-      return;
-    }
+    function updateCellsToDropOverWhenPreviewRectangleChanges() {
+      if (!draggingPreviewRectangle) {
+        return;
+      }
 
-    const newCellsToDropOver = getCellsWithinRectangleMidpoint(
-      draggingPreviewRectangle,
-      gap
-    );
-
-    const currentlyMovingItemNewPosition =
-      getStartAndEndPositionsForRowAndColumnsFromCells(
-        gridElement,
-        newCellsToDropOver
+      const newCellsToDropOver = getCellsWithinRectangleMidpoint(
+        draggingPreviewRectangle,
+        gap
       );
 
-    const newCurrentGridItemsPositionData = structuredClone(
-      currentGridItemsPositionData
-    );
-
-    newCurrentGridItemsPositionData[currentlyMovingItemIndex] = {
-      position: {
-        gridRowStart: getNumberOrNull(currentlyMovingItemNewPosition.rowStart),
-        gridColumnEnd: getNumberOrNull(
-          currentlyMovingItemNewPosition.columnEnd
-        ),
-        gridColumnStart: getNumberOrNull(
-          currentlyMovingItemNewPosition.columnStart
-        ),
-        gridRowEnd: getNumberOrNull(currentlyMovingItemNewPosition.rowEnd),
-      },
-      wasItemMoved: true,
-    };
-
-    // No need to update if positions are the same.
-    // Prevents going into an infinite loop of updates caused by changing state that is in the deps
-    // since React dep's compares objects by reference
-    if (
-      isEqual(newCurrentGridItemsPositionData, currentGridItemsPositionData)
-    ) {
-      return;
+      cellsToDropOverSet(newCellsToDropOver);
     }
 
-    currentGridItemsPositionDataSet(newCurrentGridItemsPositionData);
+    updateCellsToDropOverWhenPreviewRectangleChanges();
+  }, [draggingPreviewRectangle, gap]);
 
-    cellsToDropOverSet(newCellsToDropOver);
+  useEffect(() => {
+    function updateCurrentPositionWhenPreviewRectangleChanges() {
+      if (
+        !draggingPreviewRectangle ||
+        !gridElement ||
+        currentlyMovingItemIndex === null
+      ) {
+        return;
+      }
+
+      const newCellsToDropOver = getCellsWithinRectangleMidpoint(
+        draggingPreviewRectangle,
+        gap
+      );
+
+      const currentlyMovingItemNewPosition =
+        getStartAndEndPositionsForRowAndColumnsFromCells(
+          gridElement,
+          newCellsToDropOver
+        );
+
+      const newCurrentGridItemsPositionData = structuredClone(
+        currentGridItemsPositionData
+      );
+
+      newCurrentGridItemsPositionData[currentlyMovingItemIndex] = {
+        position: {
+          gridRowStart: getNumberOrNull(
+            currentlyMovingItemNewPosition.rowStart
+          ),
+          gridColumnEnd: getNumberOrNull(
+            currentlyMovingItemNewPosition.columnEnd
+          ),
+          gridColumnStart: getNumberOrNull(
+            currentlyMovingItemNewPosition.columnStart
+          ),
+          gridRowEnd: getNumberOrNull(currentlyMovingItemNewPosition.rowEnd),
+        },
+        wasItemMoved: true,
+      };
+
+      // No need to update if positions are the same.
+      // Prevents going into an infinite loop of updates caused by changing state that is in the deps
+      // since React dep's compares objects by reference
+      if (
+        !isEqual(newCurrentGridItemsPositionData, currentGridItemsPositionData)
+      ) {
+        currentGridItemsPositionDataSet(newCurrentGridItemsPositionData);
+      }
+    }
+
+    updateCurrentPositionWhenPreviewRectangleChanges();
   }, [
     currentGridItemsPositionData,
     currentlyMovingItemIndex,
