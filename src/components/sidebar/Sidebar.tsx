@@ -3,6 +3,7 @@ import { Button, Flex, Text } from "@chakra-ui/react";
 import "./sidebar.css";
 import { NumberInputSlider } from "../../reusable-components/NumberInputSlider/NumberInputSlider.tsx";
 import { useDataStore } from "../../store/store.ts";
+import { GridCss } from "../GridCss/GridCss.tsx";
 
 export function Sidebar() {
   const gridCss = useDataStore((state) => state.gridCss);
@@ -69,6 +70,8 @@ export function Sidebar() {
             {removingItems ? "Removing items" : "Remove Items"}
           </Button>
         </Flex>
+
+        <GridCss />
       </div>
     </>
   );
