@@ -1,0 +1,3 @@
+.chakra-modal__content{
+    max-width: var(--chakra-sizes-2xl) !important;
+}

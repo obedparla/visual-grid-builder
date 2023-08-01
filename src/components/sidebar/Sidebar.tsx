@@ -1,6 +1,6 @@
 import { Button, Flex, Text } from "@chakra-ui/react";
 
-import "./sidebar.css";
+import "./styles.css";
 import { NumberInputSlider } from "../../reusable-components/NumberInputSlider/NumberInputSlider.tsx";
 import { useDataStore } from "../../store/store.ts";
 import { GridCss } from "../GridCss/GridCss.tsx";

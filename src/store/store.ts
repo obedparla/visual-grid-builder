@@ -13,6 +13,7 @@ interface state {
   gridItemsPositions: GridItemPositionsData;
   flags: {
     removingItems: boolean;
+    isModalOpen: boolean;
   };
 }
 
@@ -37,6 +38,7 @@ const defaultState: state = {
   gridItemsPositions: [],
   flags: {
     removingItems: false,
+    isModalOpen: false,
   },
 };
 
@@ -62,6 +64,10 @@ export const useDataStore = create<Store>()(
         removeItem: (index) => {
           set((state) => {
             state.gridItemsPositions.splice(index, 1);
+
+            if (state.gridItemsPositions.length === 0) {
+              state.flags.removingItems = false;
+            }
           });
         },
         updateGridItemsPositions: (newGridItemsPositions) => {

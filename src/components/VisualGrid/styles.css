@@ -8,6 +8,7 @@
   height: 100%;
   background: antiquewhite;
   position: relative;
+  overflow: auto;
 }
 
 .visual-grid__wrapper{

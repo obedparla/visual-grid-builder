@@ -15,7 +15,7 @@ import {
   updatePreviewRectangleWhenResizing,
 } from "../../utils/grid.ts";
 
-import "./grid.css";
+import "./styles.css";
 import { useGetCellsCount, useGridStyles } from "../../hooks/grid-styles.ts";
 import { useDataStore } from "../../store/store.ts";
 import { getNumberOrNull } from "../../utils/type-conversion.ts";
