@@ -207,8 +207,8 @@ export function VisualGrid() {
     });
   }
 
-  function handleMouseUp(e: React.MouseEvent) {
-    if (currentlyMovingItemIndex) {
+  function handleMouseUp() {
+    if (currentlyMovingItemIndex !== null) {
       updateGridItemsPositionData(currentGridItemsPositionData);
     }
 
@@ -311,7 +311,7 @@ export function VisualGrid() {
           // "visual-grid__swapping": currentlySwappingAreas,
         })}
         onMouseMove={(event) => handleMouseMove(event)}
-        onMouseUp={(event) => handleMouseUp(event)}
+        onMouseUp={() => handleMouseUp()}
       >
         {draggingPreviewRectangle ? (
           <div
