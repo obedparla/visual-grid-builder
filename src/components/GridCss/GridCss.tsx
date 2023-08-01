@@ -37,7 +37,7 @@ export function GridCss() {
     return acc;
   }, "");
 
-  let itemIndex = -1;
+  let itemIndex = 0;
   const itemsCss = itemsPositions.reduce((acc, itemPosition) => {
     itemIndex++;
 

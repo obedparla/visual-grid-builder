@@ -6,7 +6,7 @@
 .visual-grid__container{
   width: 100%;
   height: 100%;
-  background: antiquewhite;
+  background: var(--backgroundColor);;
   position: relative;
   overflow: auto;
 }
@@ -50,7 +50,16 @@
 
 .visual-grid__item{
   position: relative;
-  background: var(--secondary);
+  background: var(--itemsColor);
+
+  /* Item index */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.visual-grid__item-index{
+  font-size: 3vw;
 }
 
 
@@ -102,7 +111,7 @@
 
 .visual-grid__resizing-handle__top-left{
   position: absolute;
-  top: 10px;
+  top: 9px;
   left: 10px;
   cursor: nwse-resize;
   transform: rotate(135deg);
@@ -123,7 +132,7 @@
 }
 .visual-grid__resizing-handle__bottom-right{
   position: absolute;
-  bottom: 10px;
+  bottom: 9px;
   right: 10px;
   cursor: nwse-resize;
   transform: rotate(315deg);

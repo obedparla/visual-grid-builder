@@ -333,6 +333,8 @@ export function VisualGrid() {
               onMouseDown={(event) => handleMouseDownOnArea(event, itemIndex)}
               data-grid-item-index={itemIndex}
             >
+              <div className={"visual-grid__item-index"}>{itemIndex + 1}</div>
+
               {removingItems ? (
                 <div className={"visual-grid__remove-item"}>
                   <svg
@@ -344,6 +346,7 @@ export function VisualGrid() {
                   </svg>
                 </div>
               ) : null}
+
               {!removingItems &&
                 !currentlySwappingAreas &&
                 !currentlyMovingItemIndex && (
@@ -365,6 +368,7 @@ export function VisualGrid() {
             </div>
           ))}
         </div>
+
         <div className="visual-grid__cells" style={gridStyles}>
           {Array.from({ length: cellsCount }, (_, index) => (
             <div
