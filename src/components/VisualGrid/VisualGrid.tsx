@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import * as classNames from "classnames";
+import classNames from "classnames";
 import GridResizingHandles from "./components/GridResizingHandles.tsx";
 import {
   GridItemPositionsData,
