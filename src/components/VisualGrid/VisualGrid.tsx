@@ -14,12 +14,12 @@ import {
   getStartAndEndPositionsForRowAndColumnsFromCells,
   maybeDisplaceItemsAndGetNewPositions,
   updatePreviewRectangleWhenResizing,
-} from "../../utils/grid.ts";
+} from "../../lib/grid.ts";
 
 import "./styles.css";
 import { useGetCellsCount, useGridStyles } from "../../hooks/grid-styles.ts";
 import { useDataStore } from "../../store/store.ts";
-import { getNumberOrNull } from "../../utils/type-conversion.ts";
+import { getNumberOrNull } from "../../lib/type-conversion.ts";
 import { isEqual } from "lodash";
 
 export function VisualGrid() {
@@ -29,12 +29,6 @@ export function VisualGrid() {
   const removeItem = useDataStore((state) => state.removeItem);
   const gap = useDataStore((store) => store.gridCss.gap);
 
-  // Set grid Element on "mount"
-  useEffect(() => {
-    gridElementSet(document.getElementById("grid"));
-  }, []);
-
-  const [currentlySwappingAreas, currentlySwappingAreasSet] = useState(false);
   const [currentlyMovingItemIndex, currentlyMovingItemIndexSet] = useState<
     number | null
   >(null);
@@ -47,7 +41,6 @@ export function VisualGrid() {
     currentResizingFromHandlePositionSet,
   ] = useState<HandlePosition | null>(null);
 
-  // rename to "draggingAreaRectangle"
   const [draggingPreviewRectangle, draggingPreviewRectangleSet] =
     useState<PreviewRectangle | null>(null);
 
@@ -59,17 +52,13 @@ export function VisualGrid() {
   const savedGridItemsPositionData = useDataStore(
     (state) => state.gridItemsPositions
   );
+
   const [currentGridItemsPositionData, currentGridItemsPositionDataSet] =
     useState<GridItemPositionsData>(savedGridItemsPositionData);
 
   const updateGridItemsPositionData = useDataStore(
     (state) => state.updateGridItemsPositions
   );
-
-  // Update the current positions when we commit new positions after dragging/resizing
-  useEffect(() => {
-    currentGridItemsPositionDataSet(savedGridItemsPositionData);
-  }, [savedGridItemsPositionData]);
 
   const gridItemsIndexArray = Object.keys(savedGridItemsPositionData).map(
     (itemIndex) => Number(itemIndex)
@@ -223,6 +212,16 @@ export function VisualGrid() {
 
   ////// DRAG END ///////
 
+  // Set grid Element on "mount"
+  useEffect(() => {
+    gridElementSet(document.getElementById("grid"));
+  }, []);
+
+  // Update the current positions when we commit new positions after dragging/resizing
+  useEffect(() => {
+    currentGridItemsPositionDataSet(savedGridItemsPositionData);
+  }, [savedGridItemsPositionData]);
+
   useEffect(() => {
     function updateCellsToDropOverWhenPreviewRectangleChanges() {
       if (!draggingPreviewRectangle) {
@@ -250,8 +249,7 @@ export function VisualGrid() {
         gridElement,
         getSelectedCellsIndexes(cellsToDropOver),
         savedGridItemsPositionData,
-        currentlyMovingItemIndex,
-        false
+        currentlyMovingItemIndex
       );
 
       const currentlyMovingItemNewPosition =
@@ -299,10 +297,6 @@ export function VisualGrid() {
         className={classNames({
           "visual-grid__wrapper": true,
           "visual-grid__dragging": currentlyMovingItemIndex !== null,
-          // "visual-grid__resizing": currentlyResizingItemElement,
-          // [`visual-grid__resizing-from-${currentResizingFromHandlePosition}`]:
-          //   currentResizingFromHandlePosition,
-          // "visual-grid__swapping": currentlySwappingAreas,
         })}
         onMouseMove={(event) => handleMouseMove(event)}
         onMouseUp={() => handleMouseUp()}
@@ -341,24 +335,22 @@ export function VisualGrid() {
                 </div>
               ) : null}
 
-              {!removingItems &&
-                !currentlySwappingAreas &&
-                !currentlyMovingItemIndex && (
-                  <GridResizingHandles
-                    onMouseDownTopLeft={(event) =>
-                      dragStartResizeArea(event, itemIndex, "top-left")
-                    }
-                    onMouseDownTopRight={(event) =>
-                      dragStartResizeArea(event, itemIndex, "top-right")
-                    }
-                    onMouseDownBottomLeft={(event) =>
-                      dragStartResizeArea(event, itemIndex, "bottom-left")
-                    }
-                    onMouseDownBottomRight={(event) =>
-                      dragStartResizeArea(event, itemIndex, "bottom-right")
-                    }
-                  />
-                )}
+              {!removingItems && !currentlyMovingItemIndex && (
+                <GridResizingHandles
+                  onMouseDownTopLeft={(event) =>
+                    dragStartResizeArea(event, itemIndex, "top-left")
+                  }
+                  onMouseDownTopRight={(event) =>
+                    dragStartResizeArea(event, itemIndex, "top-right")
+                  }
+                  onMouseDownBottomLeft={(event) =>
+                    dragStartResizeArea(event, itemIndex, "bottom-left")
+                  }
+                  onMouseDownBottomRight={(event) =>
+                    dragStartResizeArea(event, itemIndex, "bottom-right")
+                  }
+                />
+              )}
             </div>
           ))}
         </div>

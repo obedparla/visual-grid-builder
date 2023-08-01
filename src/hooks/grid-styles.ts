@@ -1,5 +1,5 @@
 import { useDataStore } from "../store/store.ts";
-import { getCellsInGridCount } from "../utils/grid.ts";
+import { getCellsInGridCount } from "../lib/grid.ts";
 import { useEffect, useState } from "react";
 import type * as CSS from "csstype";
 

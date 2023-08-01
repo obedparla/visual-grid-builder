@@ -314,14 +314,9 @@ export function maybeDisplaceItemsAndGetNewPositions(
   gridElement: Element,
   selectedCells: number[],
   gridItemsPositionMapArg: GridItemPositionsData,
-  currentlyMovingItemIndex: number,
-  overlapItemsEnabled: boolean
+  currentlyMovingItemIndex: number
 ): GridItemPositionsData {
   const gridItemsPositionMap = structuredClone(gridItemsPositionMapArg);
-
-  if (overlapItemsEnabled) {
-    return gridItemsPositionMap;
-  }
 
   const itemsIndexBeingDisplaced = getItemsIndexBeingDisplaced(
     gridElement,
@@ -385,8 +380,7 @@ export function maybeDisplaceItemsAndGetNewPositions(
         gridElement,
         cellsCurrentItemIsOver,
         newGridItemsPositionMap,
-        itemIndex,
-        overlapItemsEnabled
+        itemIndex
       );
 
       if (newGridItemPositions) {
@@ -402,8 +396,7 @@ export function maybeDisplaceItemsAndGetNewPositions(
     gridElement,
     selectedCells,
     newGridItemsPositionMap,
-    currentlyMovingItemIndex,
-    overlapItemsEnabled
+    currentlyMovingItemIndex
   );
 }
 
