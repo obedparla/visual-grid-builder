@@ -1,8 +1,10 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { subscribeWithSelector, persist } from "zustand/middleware";
-import { GridItemPositionsData } from "../types/grid.ts";
+import { temporal } from "zundo";
 import { merge } from "lodash";
+
+import { GridItemPositionsData } from "../types/grid.ts";
 
 interface state {
   gridCss: {
@@ -42,64 +44,73 @@ const defaultState: state = {
   },
 };
 
+function ignoreKeysFromStore(state: Store) {
+  const keysFromStateToIgnore = ["flags"];
+
+  return Object.fromEntries(
+    Object.entries(state).filter(
+      ([key]) => !keysFromStateToIgnore.includes(key)
+    )
+  );
+}
+
 export const useDataStore = create<Store>()(
   subscribeWithSelector(
-    persist(
-      immer((set) => ({
-        ...defaultState,
+    temporal(
+      persist(
+        immer((set) => ({
+          ...defaultState,
 
-        // Actions
-        updateGridCss: (newGridCss: Store["gridCss"]) =>
-          set((state) => {
-            state.gridCss = newGridCss;
-          }),
-        addItem: () => {
-          set((state) => {
-            state.gridItemsPositions.push({
-              position: null,
-              wasItemMoved: false,
+          // Actions
+          updateGridCss: (newGridCss: Store["gridCss"]) =>
+            set((state) => {
+              state.gridCss = newGridCss;
+            }),
+          addItem: () => {
+            set((state) => {
+              state.gridItemsPositions.push({
+                position: null,
+                wasItemMoved: false,
+              });
             });
-          });
-        },
-        removeItem: (index) => {
-          set((state) => {
-            state.gridItemsPositions.splice(index, 1);
+          },
+          removeItem: (index) => {
+            set((state) => {
+              state.gridItemsPositions.splice(index, 1);
 
-            if (state.gridItemsPositions.length === 0) {
-              state.flags.removingItems = false;
-            }
-          });
-        },
-        updateGridItemsPositions: (newGridItemsPositions) => {
-          set((state) => {
-            state.gridItemsPositions = newGridItemsPositions;
-          });
-        },
-        updateFlag: (flag, newState) => {
-          set((state) => {
-            state.flags[flag] = newState;
-          });
-        },
-      })),
-      // default saving to localStorage as persistent store
+              if (state.gridItemsPositions.length === 0) {
+                state.flags.removingItems = false;
+              }
+            });
+          },
+          updateGridItemsPositions: (newGridItemsPositions) => {
+            set((state) => {
+              state.gridItemsPositions = newGridItemsPositions;
+            });
+          },
+          updateFlag: (flag, newState) => {
+            set((state) => {
+              state.flags[flag] = newState;
+            });
+          },
+        })),
+        // default saving to localStorage as persistent store
+        {
+          name: "visual_grid_store",
+          version: 1,
+          // deep merge to avoid losing data not saved in the persistent store
+          merge: (persistedState, currentState) => {
+            return merge(currentState, persistedState);
+          },
+          // https://docs.pmnd.rs/zustand/integrations/persisting-store-data#partialize
+          partialize: ignoreKeysFromStore,
+        }
+      ),
       {
-        name: "visual_grid_store",
-        version: 1,
-        // deep merge to avoid lossing data not saved in the persistent store
-        merge: (persistedState, currentState) => {
-          return merge(currentState, persistedState);
-        },
-        // https://docs.pmnd.rs/zustand/integrations/persisting-store-data#partialize
-        partialize: (state) => {
-          const keysFromStateToIgnore = ["flags"];
-
-          return Object.fromEntries(
-            Object.entries(state).filter(
-              ([key]) => !keysFromStateToIgnore.includes(key)
-            )
-          );
-        },
+        partialize: ignoreKeysFromStore,
       }
     )
   )
 );
+
+export const useTemporalStore = create(useDataStore.temporal);
