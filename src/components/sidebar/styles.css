@@ -1,6 +1,6 @@
 .sidebar__container{
     min-width: 300px;
     height: 100%;
-    background: aliceblue;
+    background: var(--sidebarColor);
     padding: 20px 20px;
 }

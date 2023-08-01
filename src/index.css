@@ -1,8 +1,7 @@
 :root{
-    --brand: #8785A2;
-    --gray: #F6F6F6;
-    --primary: #FFC7C7;
-    --secondary: #FFE2E2;
+    --itemsColor: #c8b6ff;
+    --backgroundColor: hsl(300deg 100% 92% / 10%);
+    --sidebarColor: hsl(221deg 100% 86% / 10%);
 }
 
 html, body, #root, .app__container{
