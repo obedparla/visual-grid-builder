@@ -1,5 +1,5 @@
 import { useDataStore } from "../store/store.ts";
-import { getCountCellsInGrid } from "../utils/grid.ts";
+import { getCellsInGridCount } from "../utils/grid.ts";
 import { useEffect, useState } from "react";
 import type * as CSS from "csstype";
 
@@ -19,7 +19,7 @@ export function useGetCellsCount(gridElement: HTMLElement | null) {
   const [cellsCount, cellsCountSet] = useState(0);
 
   useEffect(() => {
-    cellsCountSet(getCountCellsInGrid(gridElement));
+    cellsCountSet(getCellsInGridCount(gridElement));
   }, [
     gridElement,
     gridStyles.gridTemplateColumns,

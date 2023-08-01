@@ -1,5 +1,7 @@
 import {
   ColumnAndRowPosition,
+  GridItemPosition,
+  GridItemPositionsData,
   HandlePosition,
   PreviewRectangle,
   SelectedCellsList,
@@ -8,11 +10,14 @@ import {
   isElementWithinBoundingRectangle,
   isElementWithinMidPointOfRectangle,
 } from "./dom.ts";
-export function getCountCellsInGrid(gridElement: Element | null) {
-  if (!gridElement) return 0;
-  const { columnWidths, rowHeights } = getGridRowsAndColumnsValue(gridElement);
 
-  return columnWidths.length * rowHeights.length;
+export function getCellsInGridCount(gridElement: Element | null) {
+  if (!gridElement) return 0;
+
+  const { numberOfColumns, numberOfRows } =
+    getGridRowsAndColumnsValue(gridElement);
+
+  return numberOfRows * numberOfColumns;
 }
 
 export function getGridRowsAndColumnsValue(gridElement: Element) {
@@ -22,23 +27,13 @@ export function getGridRowsAndColumnsValue(gridElement: Element) {
   const { gridTemplateColumns, gridTemplateRows } =
     window.getComputedStyle(gridElement);
 
-  // The columns are returned as pure px values in a single string "100 250 300"
-  const columnWidths = gridTemplateColumns
-    .split(" ")
-    .map((width) => parseFloat(width));
+  const numberOfColumns = gridTemplateColumns.split(" ").length;
 
-  const rowHeights = gridTemplateRows
-    .split(" ")
-    .map((height) => parseFloat(height));
-
-  const totalColumnWidth = columnWidths.reduce((sum, width) => sum + width, 0);
-  const totalRowHeight = rowHeights.reduce((sum, height) => sum + height, 0);
+  const numberOfRows = gridTemplateRows.split(" ").length;
 
   return {
-    columnWidths,
-    totalColumnWidth,
-    rowHeights,
-    totalRowHeight,
+    numberOfColumns: numberOfColumns,
+    numberOfRows: numberOfRows,
   };
 }
 
@@ -94,11 +89,11 @@ export function getSelectedCellsIndexes(selectedCells: SelectedCellsList) {
 }
 
 function getColumnAndRowByCellIndex(gridElement: Element, index: number) {
-  const { columnWidths } = getGridRowsAndColumnsValue(gridElement);
+  const { numberOfColumns } = getGridRowsAndColumnsValue(gridElement);
 
   // grid rows and columns start at 1 and not 0
-  const rowPosition = Math.floor(index / columnWidths.length) + 1;
-  const columnPosition = (index % columnWidths.length) + 1;
+  const rowPosition = Math.floor(index / numberOfColumns) + 1;
+  const columnPosition = (index % numberOfColumns) + 1;
 
   return { row: rowPosition, column: columnPosition };
 }
@@ -217,3 +212,199 @@ export function updatePreviewRectangleWhenResizing(
 
   return updatedDraggingPreviewRectangle;
 }
+
+/***** Start - Displacement logic *****/
+
+// find out which element is within the column and row
+function getItemsInCell(
+  gridElement: Element,
+  cellIndex: number,
+  gridItemsPositionMap: GridItemPositionsData
+): number[] {
+  const columnAndRow = getColumnAndRowByCellIndex(gridElement, cellIndex);
+
+  if (columnAndRow === null) {
+    return [];
+  }
+
+  const { column, row } = columnAndRow;
+
+  const itemsIndex = gridItemsPositionMap.map((item, itemIndex) => {
+    const itemPosition = structuredClone(item.position);
+
+    if (itemPosition === null) {
+      return null;
+    }
+
+    if (
+      (itemPosition.gridColumnStart === null ||
+        itemPosition.gridColumnStart <= column) &&
+      (itemPosition.gridColumnEnd === null ||
+        itemPosition.gridColumnEnd > column) &&
+      (itemPosition.gridRowStart === null ||
+        itemPosition.gridRowStart <= row) &&
+      (itemPosition.gridRowEnd === null || itemPosition.gridRowEnd > row)
+    ) {
+      return itemIndex;
+    }
+
+    return null;
+  });
+
+  return itemsIndex.filter((index): index is number => index !== null);
+}
+
+function getItemsIndexBeingDisplaced(
+  gridElement: Element,
+  selectedCells: number[],
+  gridItemsPositionMap: GridItemPositionsData,
+  currentlyMovingItemIndex: number
+) {
+  return [
+    // unique items
+    ...new Set(
+      selectedCells
+        .flatMap((cell) =>
+          getItemsInCell(gridElement, cell, gridItemsPositionMap)
+        )
+        .filter((itemIndex) => itemIndex !== currentlyMovingItemIndex)
+    ),
+  ];
+}
+
+// Calculate the cells with math and not DOM rectangle like usual
+// because we haven't committed these positions yet
+function getCellsWithinItemPosition(
+  itemPosition: GridItemPosition | null,
+  totalColumns: number
+) {
+  if (
+    !itemPosition ||
+    itemPosition.gridRowStart === null ||
+    itemPosition.gridColumnEnd === null ||
+    itemPosition.gridColumnStart === null ||
+    itemPosition.gridRowEnd === null
+  ) {
+    return [];
+  }
+
+  const cellsContainedByItem = [];
+
+  for (
+    let row = itemPosition.gridRowStart;
+    row < itemPosition.gridRowEnd;
+    row++
+  ) {
+    for (
+      let col = itemPosition.gridColumnStart;
+      col < itemPosition.gridColumnEnd;
+      col++
+    ) {
+      // Subtract 1 from row and col to account for CSS grid starting at 1
+      const index = (row - 1) * totalColumns + (col - 1);
+
+      cellsContainedByItem.push(index);
+    }
+  }
+
+  return cellsContainedByItem;
+}
+
+export function maybeDisplaceItemsAndGetNewPositions(
+  gridElement: Element,
+  selectedCells: number[],
+  gridItemsPositionMapArg: GridItemPositionsData,
+  currentlyMovingItemIndex: number,
+  overlapItemsEnabled: boolean
+): GridItemPositionsData {
+  const gridItemsPositionMap = structuredClone(gridItemsPositionMapArg);
+
+  if (overlapItemsEnabled) {
+    return gridItemsPositionMap;
+  }
+
+  const itemsIndexBeingDisplaced = getItemsIndexBeingDisplaced(
+    gridElement,
+    selectedCells,
+    gridItemsPositionMap,
+    currentlyMovingItemIndex
+  );
+
+  if (!itemsIndexBeingDisplaced.length) {
+    return gridItemsPositionMap;
+  }
+
+  const { numberOfColumns } = getGridRowsAndColumnsValue(gridElement);
+
+  let newGridItemsPositionMap = structuredClone(gridItemsPositionMap);
+
+  // Find a position where the displaced items won't interfere with the "moving item"
+  itemsIndexBeingDisplaced.forEach((itemIndex) => {
+    const newPosition = structuredClone(
+      gridItemsPositionMap[itemIndex].position
+    );
+
+    if (itemIndex === currentlyMovingItemIndex || !newPosition) {
+      return;
+    }
+
+    // Move the element down one row
+    // Note: I tried more fancy algorithms. Moving the item to the right if it had space, otherwise down
+    // it behaves nicely on *some* layouts and terribly on others. It can alter the layout of the grid, which is bad
+    // Only moving them down makes it predictable
+    newPosition.gridRowStart =
+      newPosition.gridRowStart && newPosition.gridRowStart + 1;
+    newPosition.gridRowEnd =
+      newPosition.gridRowEnd && newPosition.gridRowEnd + 1;
+
+    newGridItemsPositionMap[itemIndex] = {
+      wasItemMoved: true,
+      position: newPosition,
+    };
+  });
+
+  const itemsIndexToStillDisplace = getItemsIndexBeingDisplaced(
+    gridElement,
+    selectedCells,
+    newGridItemsPositionMap,
+    currentlyMovingItemIndex
+  );
+
+  if (!itemsIndexToStillDisplace.length) {
+    // After finishing displacing the "direct items", check if those need to displace other items in turn
+    // This prevents moving items before we know the final positions of the "direct items"
+    itemsIndexBeingDisplaced.forEach((itemIndex) => {
+      if (itemIndex === currentlyMovingItemIndex) return;
+
+      const cellsCurrentItemIsOver = getCellsWithinItemPosition(
+        newGridItemsPositionMap[itemIndex].position,
+        numberOfColumns
+      );
+
+      const newGridItemPositions = maybeDisplaceItemsAndGetNewPositions(
+        gridElement,
+        cellsCurrentItemIsOver,
+        newGridItemsPositionMap,
+        itemIndex,
+        overlapItemsEnabled
+      );
+
+      if (newGridItemPositions) {
+        newGridItemsPositionMap = newGridItemPositions;
+      }
+    });
+
+    return newGridItemsPositionMap;
+  }
+
+  // keep displacing the item until it finds its correct position
+  return maybeDisplaceItemsAndGetNewPositions(
+    gridElement,
+    selectedCells,
+    newGridItemsPositionMap,
+    currentlyMovingItemIndex,
+    overlapItemsEnabled
+  );
+}
+
+/***** END - Displacement logic *****/

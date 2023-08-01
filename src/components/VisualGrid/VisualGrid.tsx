@@ -12,6 +12,7 @@ import {
   getCellsWithinRectangleMidpoint,
   getSelectedCellsIndexes,
   getStartAndEndPositionsForRowAndColumnsFromCells,
+  maybeDisplaceItemsAndGetNewPositions,
   updatePreviewRectangleWhenResizing,
 } from "../../utils/grid.ts";
 
@@ -70,11 +71,11 @@ export function VisualGrid() {
     currentGridItemsPositionDataSet(savedGridItemsPositionData);
   }, [savedGridItemsPositionData]);
 
-  const gridStyles = useGridStyles();
-
   const gridItemsIndexArray = Object.keys(savedGridItemsPositionData).map(
     (itemIndex) => Number(itemIndex)
   );
+
+  const gridStyles = useGridStyles();
 
   const cellsCount = useGetCellsCount(gridElement);
 
@@ -240,31 +241,26 @@ export function VisualGrid() {
   }, [draggingPreviewRectangle, gap]);
 
   useEffect(() => {
-    function updateCurrentPositionWhenPreviewRectangleChanges() {
-      if (
-        !draggingPreviewRectangle ||
-        !gridElement ||
-        currentlyMovingItemIndex === null
-      ) {
+    function displaceItemsAndUpdateCurrentPositionWhenCellsToDropOverChanges() {
+      if (!gridElement || currentlyMovingItemIndex === null) {
         return;
       }
 
-      const newCellsToDropOver = getCellsWithinRectangleMidpoint(
-        draggingPreviewRectangle,
-        gap
+      const newItemPositions = maybeDisplaceItemsAndGetNewPositions(
+        gridElement,
+        getSelectedCellsIndexes(cellsToDropOver),
+        savedGridItemsPositionData,
+        currentlyMovingItemIndex,
+        false
       );
 
       const currentlyMovingItemNewPosition =
         getStartAndEndPositionsForRowAndColumnsFromCells(
           gridElement,
-          newCellsToDropOver
+          cellsToDropOver
         );
 
-      const newCurrentGridItemsPositionData = structuredClone(
-        currentGridItemsPositionData
-      );
-
-      newCurrentGridItemsPositionData[currentlyMovingItemIndex] = {
+      newItemPositions[currentlyMovingItemIndex] = {
         position: {
           gridRowStart: getNumberOrNull(
             currentlyMovingItemNewPosition.rowStart
@@ -283,20 +279,18 @@ export function VisualGrid() {
       // No need to update if positions are the same.
       // Prevents going into an infinite loop of updates caused by changing state that is in the deps
       // since React dep's compares objects by reference
-      if (
-        !isEqual(newCurrentGridItemsPositionData, currentGridItemsPositionData)
-      ) {
-        currentGridItemsPositionDataSet(newCurrentGridItemsPositionData);
+      if (!isEqual(newItemPositions, currentGridItemsPositionData)) {
+        currentGridItemsPositionDataSet(newItemPositions);
       }
     }
 
-    updateCurrentPositionWhenPreviewRectangleChanges();
+    displaceItemsAndUpdateCurrentPositionWhenCellsToDropOverChanges();
   }, [
+    cellsToDropOver,
     currentGridItemsPositionData,
+    savedGridItemsPositionData,
     currentlyMovingItemIndex,
-    draggingPreviewRectangle,
     gridElement,
-    gap,
   ]);
 
   return (
