@@ -7,6 +7,7 @@ export function useGridStyles(): CSS.Properties {
   const gridCss = useDataStore((store) => store.gridCss);
 
   return {
+    display: "grid",
     gridTemplateColumns: `repeat(${gridCss.columnsNumber}, minmax(auto, 1fr))`,
     gridTemplateRows: `repeat(${gridCss.rowsNumber}, minmax(100px, 1fr))`,
     gap: `${gridCss.gap}px`,

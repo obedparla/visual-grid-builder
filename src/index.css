@@ -1,5 +1,6 @@
 :root{
-    --itemsColor: #c8b6ff;
+    --brandColor: #c8b6ff;
+    --itemsColor: hsl(255deg 100% 71% / 50%);
     --backgroundColor: hsl(300deg 100% 92% / 10%);
     --sidebarColor: hsl(221deg 100% 86% / 10%);
 
