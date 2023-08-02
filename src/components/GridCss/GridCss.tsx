@@ -28,6 +28,9 @@ export function GridCss() {
   const isModalOpen = useDataStore((state) => state.flags.isModalOpen);
   const updateFlag = useDataStore((state) => state.updateFlag);
 
+  const [gridAreaShorthand, gridAreaShorthandSet] = useState(true);
+  const [showHtml, showHtmlSet] = useState(false);
+
   const [isCopied, isCopiedSet] = useState(false);
 
   const gridCss = Object.entries(gridStyles).reduce((acc, [key, value]) => {
@@ -42,38 +45,28 @@ export function GridCss() {
     itemIndex++;
 
     if (
-      !itemPosition.position?.gridColumnStart &&
-      !itemPosition.position?.gridColumnEnd &&
-      !itemPosition.position?.gridRowStart &&
-      !itemPosition.position?.gridRowEnd
+      !itemPosition.position ||
+      itemPosition.position.gridColumnStart === null ||
+      itemPosition.position.gridColumnEnd === null ||
+      itemPosition.position.gridRowStart === null ||
+      itemPosition.position.gridRowEnd === null
     ) {
       return acc;
     }
 
-    return `${acc}.grid-item-${itemIndex} {
-  ${
-    itemPosition.position?.gridColumnStart
-      ? `grid-column-start: ${itemPosition.position.gridColumnStart};`
-      : ""
-  }
-  ${
-    itemPosition.position?.gridColumnEnd
-      ? `grid-column-end: ${itemPosition.position.gridColumnEnd};`
-      : ""
-  }
-  ${
-    itemPosition.position?.gridRowStart
-      ? `grid-row-start: ${itemPosition.position.gridRowStart};`
-      : ""
-  }
-  ${
-    itemPosition.position?.gridRowEnd
-      ? `grid-row-end: ${itemPosition.position.gridRowEnd};`
-      : ""
-  }
+    if (gridAreaShorthand) {
+      return `${acc}.grid-item-${itemIndex} { grid-area: ${itemPosition.position.gridRowStart} / ${itemPosition.position.gridColumnStart} / ${itemPosition.position.gridRowEnd} / ${itemPosition.position.gridColumnEnd}; }
+`;
+    } else {
+      return `${acc}.grid-item-${itemIndex} {
+  grid-column-start: ${itemPosition.position.gridColumnStart};
+  grid-column-end: ${itemPosition.position.gridColumnEnd};
+  grid-row-start: ${itemPosition.position.gridRowStart};
+  grid-row-end: ${itemPosition.position.gridRowEnd};
 }
 
 `;
+    }
   }, "");
 
   // white space matters here
@@ -117,10 +110,32 @@ ${itemsCss}`;
       >
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>CSS for Grid</ModalHeader>
+          <ModalHeader>CSS for your Grid</ModalHeader>
           <ModalCloseButton />
 
           <ModalBody>
+            <Button
+              onClick={() => showHtmlSet(!showHtml)}
+              size={"sm"}
+              colorScheme={"purple"}
+              mr={3}
+            >
+              {showHtml ? "Show CSS" : "Show HTML"}
+            </Button>
+
+            {!showHtml ? (
+              <Button
+                onClick={() => gridAreaShorthandSet(!gridAreaShorthand)}
+                size={"sm"}
+                variant={"outline"}
+                colorScheme={"purple"}
+              >
+                {gridAreaShorthand
+                  ? "Use Column and Rows CSS"
+                  : "Use Grid Area shorthand"}
+              </Button>
+            ) : null}
+
             <SyntaxHighlighter language="css" style={prism}>
               {cssText}
             </SyntaxHighlighter>
@@ -140,7 +155,7 @@ ${itemsCss}`;
               onClick={copyCssToClipboard}
               rightIcon={isCopied ? <FaCheck /> : <FaCopy />}
             >
-              {isCopied ? "Copied" : "Copy styles"}
+              {isCopied ? "Copied" : "Copy to clipboard"}
             </Button>
           </ModalFooter>
         </ModalContent>
