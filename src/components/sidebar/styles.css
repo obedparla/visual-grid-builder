@@ -1,5 +1,5 @@
 .sidebar__container{
-    min-width: var(--sidebarWidth);;
+    max-width: var(--sidebarWidth);;
     background: var(--sidebarColor);
     padding: 20px 20px;
     position: fixed;

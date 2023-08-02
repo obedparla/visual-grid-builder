@@ -8,9 +8,16 @@ import { GridCss } from "../GridCss/GridCss.tsx";
 export function Sidebar() {
   const gridCss = useDataStore((state) => state.gridCss);
   const updateColumnsNumber = useDataStore((state) => state.updateGridCss);
-  const addItem = useDataStore((state) => state.addItem);
   const updateFlag = useDataStore((state) => state.updateFlag);
   const removingItems = useDataStore((state) => state.flags.removingItems);
+
+  const updateGridItemsPositionData = useDataStore(
+    (state) => state.updateGridItemsPositions
+  );
+
+  function resetGrid() {
+    updateGridItemsPositionData([]);
+  }
 
   return (
     <>
@@ -56,15 +63,14 @@ export function Sidebar() {
           </div>
         </div>
 
-        <Flex gap={4}>
-          <Button colorScheme="teal" variant="outline" mt={4} onClick={addItem}>
-            Add Item
+        <Flex gap={4} flexWrap={"wrap"} mt={4}>
+          <Button colorScheme="teal" variant="outline" onClick={resetGrid}>
+            Reset grid
           </Button>
 
           <Button
             colorScheme="teal"
             variant={removingItems ? "solid" : "outline"}
-            mt={4}
             onClick={() => updateFlag("removingItems", !removingItems)}
           >
             {removingItems ? "Removing items" : "Remove Items"}

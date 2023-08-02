@@ -21,7 +21,6 @@ interface state {
 
 interface actions {
   updateGridCss: (gridCss: Store["gridCss"]) => void;
-  addItem: () => void;
   removeItem: (index: number) => void;
   updateGridItemsPositions: (
     newGridItemsPositions: GridItemPositionsData
@@ -66,14 +65,6 @@ export const useDataStore = create<Store>()(
             set((state) => {
               state.gridCss = newGridCss;
             }),
-          addItem: () => {
-            set((state) => {
-              state.gridItemsPositions.push({
-                position: null,
-                wasItemMoved: false,
-              });
-            });
-          },
           removeItem: (index) => {
             set((state) => {
               state.gridItemsPositions.splice(index, 1);
