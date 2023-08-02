@@ -45,18 +45,18 @@
   padding: 20px;
   height: 100%;
   width: 100%;
-  pointer-events: none;
-  z-index: 1170;
 }
 
 .visual-grid__item{
   position: relative;
   background: var(--itemsColor);
+  color: hsl(0deg 0% 0% / 55%);
 
-  /* Item index */
   display: flex;
   justify-content: center;
   align-items: center;
+  /* Higher than a cell*/
+  z-index: 1200;
 }
 
 .visual-grid__item-index{
@@ -154,10 +154,11 @@
 
 .visual-grid__cell{
   border: 1px dashed #60a5fa;
+  z-index: 1100;
 }
 
-.visual-grid__populated-cell{
-  border: 2px dashed #3b82f6;
+.visual-grid__cell-pointer{
+  cursor: pointer;
 }
 
 .visual-grid__resizing .visual-grid__action-button,

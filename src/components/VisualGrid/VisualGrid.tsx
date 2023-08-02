@@ -10,6 +10,7 @@ import {
 import {
   getCellsWithinRectangle,
   getCellsWithinRectangleMidpoint,
+  getColumnAndRowByCellIndex,
   getSelectedCellsIndexes,
   getStartAndEndPositionsForRowAndColumnsFromCells,
   maybeDisplaceItemsAndGetNewPositions,
@@ -210,6 +211,27 @@ export function VisualGrid() {
     currentResizingFromHandlePositionSet(null);
   }
 
+  function addItemInCell(cellIndex: number) {
+    if (!gridElement || removingItems) return;
+
+    const newPositions = structuredClone(savedGridItemsPositionData);
+
+    const { row, column } = getColumnAndRowByCellIndex(gridElement, cellIndex);
+
+    newPositions.push({
+      position: {
+        gridColumnStart: column,
+        gridColumnEnd: column + 1,
+        gridRowStart: row,
+        gridRowEnd: row + 1,
+      },
+      wasItemMoved: false,
+    });
+
+    currentGridItemsPositionDataSet(newPositions);
+    updateGridItemsPositionData(newPositions);
+  }
+
   ////// DRAG END ///////
 
   // Set grid Element on "mount"
@@ -308,6 +330,20 @@ export function VisualGrid() {
           />
         ) : null}
 
+        <div className="visual-grid__cells" style={gridStyles}>
+          {Array.from({ length: cellsCount }, (_, index) => (
+            <div
+              key={index}
+              className={classNames({
+                "visual-grid__cell": true,
+                "visual-grid__cell-pointer": !removingItems,
+              })}
+              data-grid-cell-index={index}
+              onClick={() => addItemInCell(index)}
+            />
+          ))}
+        </div>
+
         <div id={"grid"} className="visual-grid__items-grid" style={gridStyles}>
           {gridItemsIndexArray.map((itemIndex) => (
             <div
@@ -352,18 +388,6 @@ export function VisualGrid() {
                 />
               )}
             </div>
-          ))}
-        </div>
-
-        <div className="visual-grid__cells" style={gridStyles}>
-          {Array.from({ length: cellsCount }, (_, index) => (
-            <div
-              key={index}
-              className={`visual-grid__cell ${
-                cellsToDropOver[index] ? "visual-grid__populated-cell" : ""
-              }`}
-              data-grid-cell-index={index}
-            />
           ))}
         </div>
       </div>

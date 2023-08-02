@@ -88,7 +88,10 @@ export function getSelectedCellsIndexes(selectedCells: SelectedCellsList) {
     .map(([key]) => parseInt(key));
 }
 
-function getColumnAndRowByCellIndex(gridElement: Element, index: number) {
+export function getColumnAndRowByCellIndex(
+  gridElement: Element,
+  index: number
+) {
   const { numberOfColumns } = getGridRowsAndColumnsValue(gridElement);
 
   // grid rows and columns start at 1 and not 0
