@@ -3,7 +3,7 @@ import { Button, Flex, Text } from "@chakra-ui/react";
 import "./styles.css";
 import { NumberInputSlider } from "../../reusable-components/NumberInputSlider/NumberInputSlider.tsx";
 import { useDataStore } from "../../store/store.ts";
-import { GridCss } from "../GridCss/GridCss.tsx";
+import { CodeModal } from "../CodeModal/CodeModal.tsx";
 
 export function Sidebar() {
   const gridCss = useDataStore((state) => state.gridCss);
@@ -64,7 +64,12 @@ export function Sidebar() {
         </div>
 
         <Flex gap={4} flexWrap={"wrap"} mt={4}>
-          <Button colorScheme="teal" variant="outline" onClick={resetGrid}>
+          <Button
+            colorScheme="teal"
+            variant="outline"
+            onClick={resetGrid}
+            size={"sm"}
+          >
             Reset grid
           </Button>
 
@@ -77,7 +82,7 @@ export function Sidebar() {
           </Button>
         </Flex>
 
-        <GridCss />
+        <CodeModal />
       </div>
     </>
   );

@@ -14,7 +14,7 @@ import { FaCopy, FaCheck } from "react-icons/fa6";
 
 import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import css from "react-syntax-highlighter/dist/esm/languages/prism/css";
-import prism from "react-syntax-highlighter/dist/esm/styles/prism/prism";
+import prism from "react-syntax-highlighter/dist/esm/styles/prism/darcula";
 import copyToClipboard from "copy-to-clipboard";
 
 import "./styles.css";
@@ -22,7 +22,7 @@ import { useState } from "react";
 
 SyntaxHighlighter.registerLanguage("css", css);
 
-export function GridCss() {
+export function CodeModal() {
   const gridStyles = useGridStyles();
   const itemsPositions = useDataStore((state) => state.gridItemsPositions);
   const isModalOpen = useDataStore((state) => state.flags.isModalOpen);
@@ -33,14 +33,8 @@ export function GridCss() {
 
   const [isCopied, isCopiedSet] = useState(false);
 
-  const gridCss = Object.entries(gridStyles).reduce((acc, [key, value]) => {
-    acc = `${acc}
-  ${key}: ${value};`;
-
-    return acc;
-  }, "");
-
   let itemIndex = 0;
+
   const itemsCss = itemsPositions.reduce((acc, itemPosition) => {
     itemIndex++;
 
@@ -71,14 +65,37 @@ export function GridCss() {
 
   // white space matters here
   const cssText = `/* Grid CSS */
-.grid {${gridCss}
+.grid {
+  display: grid;
+  grid-template-columns: ${gridStyles.gridTemplateColumns};
+  grid-template-rows: ${gridStyles.gridTemplateRows};
+  gap: ${gridStyles.gap};
 }
 
 /* Items CSS */
+.grid-item{
+  background: #c8b6ff;
+};
+
 ${itemsCss}`;
 
-  function copyCssToClipboard() {
-    copyToClipboard(cssText);
+  const htmlCode = `<div class="grid">
+
+ ${itemsPositions
+   .map((_, itemIndex) => {
+     return `<div class="grid-item grid-item-${itemIndex + 1}"> </div>
+`;
+   })
+   .join(" ")}
+</div>`;
+
+  function copyCodeToClipboard() {
+    if (showHtml) {
+      copyToClipboard(htmlCode);
+    } else {
+      copyToClipboard(cssText);
+    }
+
     isCopiedSet(true);
 
     setTimeout(() => {
@@ -96,7 +113,7 @@ ${itemsCss}`;
           updateFlag("isModalOpen", true);
         }}
       >
-        See CSS
+        Get the code
       </Button>
 
       <Modal
@@ -136,9 +153,15 @@ ${itemsCss}`;
               </Button>
             ) : null}
 
-            <SyntaxHighlighter language="css" style={prism}>
-              {cssText}
-            </SyntaxHighlighter>
+            {showHtml ? (
+              <SyntaxHighlighter language="html" style={prism}>
+                {htmlCode}
+              </SyntaxHighlighter>
+            ) : (
+              <SyntaxHighlighter language="css" style={prism}>
+                {cssText}
+              </SyntaxHighlighter>
+            )}
           </ModalBody>
 
           <ModalFooter>
@@ -152,7 +175,7 @@ ${itemsCss}`;
             </Button>
             <Button
               colorScheme={"blue"}
-              onClick={copyCssToClipboard}
+              onClick={copyCodeToClipboard}
               rightIcon={isCopied ? <FaCheck /> : <FaCopy />}
             >
               {isCopied ? "Copied" : "Copy to clipboard"}

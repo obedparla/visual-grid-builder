@@ -8,7 +8,7 @@ export function useGridStyles(): CSS.Properties {
 
   return {
     display: "grid",
-    gridTemplateColumns: `repeat(${gridCss.columnsNumber}, minmax(auto, 1fr))`,
+    gridTemplateColumns: `repeat(${gridCss.columnsNumber}, minmax(10px, 1fr))`,
     gridTemplateRows: `repeat(${gridCss.rowsNumber}, minmax(100px, 1fr))`,
     gap: `${gridCss.gap}px`,
   };

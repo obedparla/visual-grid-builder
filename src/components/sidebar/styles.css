@@ -6,4 +6,6 @@
     top: 0;
     left: 0;
     bottom: 0;
+    box-shadow: 1px 0px 4px -3px rgb(0 0 0 / 45%);
+    border-right: 1px solid #ccc;
 }
