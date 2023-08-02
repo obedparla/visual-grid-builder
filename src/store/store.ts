@@ -36,7 +36,20 @@ const defaultState: state = {
     columnsNumber: 7,
     gap: 8,
   },
-  gridItemsPositions: [],
+  gridItemsPositions: [
+    {
+      position: null,
+      wasItemMoved: false,
+    },
+    {
+      position: null,
+      wasItemMoved: false,
+    },
+    {
+      position: null,
+      wasItemMoved: false,
+    },
+  ],
   flags: {
     removingItems: false,
     isModalOpen: false,
