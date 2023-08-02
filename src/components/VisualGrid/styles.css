@@ -157,6 +157,10 @@
   z-index: 1100;
 }
 
+.visual-grid__cell-to-drop-over{
+  border: 2px dashed #3b82f6;
+}
+
 .visual-grid__cell-pointer{
   cursor: pointer;
 }

@@ -336,6 +336,7 @@ export function VisualGrid() {
               key={index}
               className={classNames({
                 "visual-grid__cell": true,
+                "visual-grid__cell-to-drop-over": cellsToDropOver[index],
                 "visual-grid__cell-pointer": !removingItems,
               })}
               data-grid-cell-index={index}
