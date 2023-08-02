@@ -327,7 +327,11 @@ export function VisualGrid() {
           <div
             className={"visual-grid__dragging-element visual-grid__item"}
             style={draggingPreviewRectangle || undefined}
-          />
+          >
+            <div className={"visual-grid__item-index"}>
+              {currentlyMovingItemIndex ? currentlyMovingItemIndex + 1 : ""}
+            </div>
+          </div>
         ) : null}
 
         <div className="visual-grid__cells" style={gridStyles}>
