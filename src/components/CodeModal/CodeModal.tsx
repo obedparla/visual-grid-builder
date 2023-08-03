@@ -114,6 +114,8 @@ ${itemsCss}`;
           updateFlag("isModalOpen", true);
         }}
         leftIcon={<BsCodeSlash />}
+        width={"100%"}
+        variant={"solid"}
       >
         Get the code
       </Button>

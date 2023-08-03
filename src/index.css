@@ -5,6 +5,8 @@
     --sidebarColor: hsl(221deg 100% 86% / 10%);
 
     --sidebarWidth: 280px;
+
+    --headerHeight: 50px;
 }
 
 html, body .app__container{

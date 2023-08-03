@@ -2,6 +2,7 @@ import { VisualGrid } from "./components/VisualGrid/VisualGrid.tsx";
 import { Sidebar } from "./components/sidebar/Sidebar.tsx";
 import { useEffect } from "react";
 import { useTemporalStore } from "./store/store.ts";
+import { Header } from "./components/Header/Header.tsx";
 
 export function App() {
   const { undo, redo } = useTemporalStore((state) => ({
@@ -29,6 +30,7 @@ export function App() {
 
   return (
     <>
+      <Header />
       <div className="app__container">
         <Sidebar />
 

@@ -1,0 +1,28 @@
+.header{
+    height: var(--headerHeight);;
+    background: #fff;
+    box-shadow: rgba(0, 0, 0, 0.075) 0 1px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header__logo{
+    margin-left: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.header__logo img{
+    height: 22px
+}
+
+.header__name{
+    font-size: 18px;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.header__links{
+    margin-right: 6px;
+}
