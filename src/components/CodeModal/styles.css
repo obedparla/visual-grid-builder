@@ -1,3 +1,7 @@
 .chakra-modal__content{
     max-width: var(--chakra-sizes-2xl) !important;
 }
+
+pre{
+    border-radius: 8px;
+}

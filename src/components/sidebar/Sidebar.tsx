@@ -1,9 +1,11 @@
-import { Button, Flex, Text } from "@chakra-ui/react";
+import { Button, ButtonGroup, Text } from "@chakra-ui/react";
 
 import "./styles.css";
 import { NumberInputSlider } from "../../reusable-components/NumberInputSlider/NumberInputSlider.tsx";
 import { useDataStore } from "../../store/store.ts";
 import { CodeModal } from "../CodeModal/CodeModal.tsx";
+import { BsEraserFill } from "react-icons/bs";
+import { MdOutlineCancel } from "react-icons/md";
 
 export function Sidebar() {
   const gridCss = useDataStore((state) => state.gridCss);
@@ -24,7 +26,7 @@ export function Sidebar() {
       <div className="sidebar__container">
         <div>
           <div>
-            <Text fontSize={16}>Grid Columns Number</Text>
+            <Text fontSize={16}>Columns Number</Text>
 
             <NumberInputSlider
               value={gridCss.columnsNumber}
@@ -37,7 +39,7 @@ export function Sidebar() {
           </div>
 
           <div>
-            <Text fontSize={16}>Grid Rows Number</Text>
+            <Text fontSize={16}>Rows Number</Text>
 
             <NumberInputSlider
               value={gridCss.rowsNumber}
@@ -63,26 +65,28 @@ export function Sidebar() {
           </div>
         </div>
 
-        <Flex gap={4} flexWrap={"wrap"} mt={4}>
-          <Button
-            colorScheme="teal"
-            variant="outline"
-            onClick={resetGrid}
-            size={"sm"}
-          >
+        <ButtonGroup
+          variant={"outline"}
+          colorScheme={"purple"}
+          size={"sm"}
+          mt={4}
+          flexWrap={"wrap"}
+          gap={3}
+        >
+          <Button onClick={resetGrid} leftIcon={<MdOutlineCancel />}>
             Reset grid
           </Button>
 
           <Button
-            colorScheme="teal"
             variant={removingItems ? "solid" : "outline"}
             onClick={() => updateFlag("removingItems", !removingItems)}
+            leftIcon={<BsEraserFill />}
           >
             {removingItems ? "Removing items" : "Remove Items"}
           </Button>
-        </Flex>
 
-        <CodeModal />
+          <CodeModal />
+        </ButtonGroup>
       </div>
     </>
   );

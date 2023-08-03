@@ -2,6 +2,7 @@ import { useGridStyles } from "../../hooks/grid-styles.ts";
 import { useDataStore } from "../../store/store.ts";
 import {
   Button,
+  ButtonGroup,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -10,7 +11,7 @@ import {
   ModalHeader,
   ModalOverlay,
 } from "@chakra-ui/react";
-import { FaCopy, FaCheck } from "react-icons/fa6";
+import { FaCopy, FaCheck, FaCss3Alt } from "react-icons/fa6";
 
 import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import css from "react-syntax-highlighter/dist/esm/languages/prism/css";
@@ -19,6 +20,8 @@ import copyToClipboard from "copy-to-clipboard";
 
 import "./styles.css";
 import { useState } from "react";
+import { BsCodeSlash } from "react-icons/bs";
+import { AiFillHtml5 } from "react-icons/ai";
 
 SyntaxHighlighter.registerLanguage("css", css);
 
@@ -106,12 +109,11 @@ ${itemsCss}`;
   return (
     <>
       <Button
-        colorScheme="teal"
-        variant="outline"
-        mt={4}
+        ml={0}
         onClick={() => {
           updateFlag("isModalOpen", true);
         }}
+        leftIcon={<BsCodeSlash />}
       >
         Get the code
       </Button>
@@ -131,27 +133,27 @@ ${itemsCss}`;
           <ModalCloseButton />
 
           <ModalBody>
-            <Button
-              onClick={() => showHtmlSet(!showHtml)}
-              size={"sm"}
-              colorScheme={"purple"}
-              mr={3}
-            >
-              {showHtml ? "Show CSS" : "Show HTML"}
-            </Button>
-
-            {!showHtml ? (
+            <ButtonGroup mb={2} colorScheme={"purple"}>
               <Button
-                onClick={() => gridAreaShorthandSet(!gridAreaShorthand)}
+                onClick={() => showHtmlSet(!showHtml)}
                 size={"sm"}
-                variant={"outline"}
-                colorScheme={"purple"}
+                leftIcon={showHtml ? <FaCss3Alt /> : <AiFillHtml5 />}
               >
-                {gridAreaShorthand
-                  ? "Use Column and Rows CSS"
-                  : "Use Grid Area shorthand"}
+                {showHtml ? "Show CSS" : "Show HTML"}
               </Button>
-            ) : null}
+
+              {!showHtml ? (
+                <Button
+                  onClick={() => gridAreaShorthandSet(!gridAreaShorthand)}
+                  size={"sm"}
+                  variant={"outline"}
+                >
+                  {gridAreaShorthand
+                    ? "Use Column and Rows CSS"
+                    : "Use Grid Area shorthand"}
+                </Button>
+              ) : null}
+            </ButtonGroup>
 
             {showHtml ? (
               <SyntaxHighlighter language="html" style={prism}>
@@ -170,13 +172,13 @@ ${itemsCss}`;
                 updateFlag("isModalOpen", false);
               }}
               mr={3}
+              variant={"ghost"}
             >
               Close
             </Button>
             <Button
-              colorScheme={"blue"}
               onClick={copyCodeToClipboard}
-              rightIcon={isCopied ? <FaCheck /> : <FaCopy />}
+              leftIcon={isCopied ? <FaCheck /> : <FaCopy />}
             >
               {isCopied ? "Copied" : "Copy to clipboard"}
             </Button>

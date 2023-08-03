@@ -4,7 +4,7 @@
     --backgroundColor: hsl(300deg 100% 92% / 10%);
     --sidebarColor: hsl(221deg 100% 86% / 10%);
 
-    --sidebarWidth: 300px;
+    --sidebarWidth: 280px;
 }
 
 html, body .app__container{
