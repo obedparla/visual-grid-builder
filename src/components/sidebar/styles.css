@@ -1,11 +1,10 @@
 .sidebar__container{
-    max-width: var(--sidebarWidth);;
+    max-width: var(--sidebarWidth);
     background: var(--sidebarColor);
-    padding: 20px 20px;
+    padding: 20px 16px;
     position: fixed;
-    top: 0;
+    top: var(--headerHeight);
     left: 0;
     bottom: 0;
     box-shadow: 1px 0px 4px -3px rgb(0 0 0 / 45%);
-    border-right: 1px solid #ccc;
 }

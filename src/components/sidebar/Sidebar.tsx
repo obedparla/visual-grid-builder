@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Text } from "@chakra-ui/react";
+import { Button, ButtonGroup, Divider, Flex, Text } from "@chakra-ui/react";
 
 import "./styles.css";
 import { NumberInputSlider } from "../../reusable-components/NumberInputSlider/NumberInputSlider.tsx";
@@ -65,25 +65,33 @@ export function Sidebar() {
           </div>
         </div>
 
+        <Divider mt={4} />
+
         <ButtonGroup
-          variant={"outline"}
           colorScheme={"purple"}
           size={"sm"}
           mt={4}
           flexWrap={"wrap"}
           gap={3}
+          spacing={0}
         >
-          <Button onClick={resetGrid} leftIcon={<MdOutlineCancel />}>
-            Reset grid
-          </Button>
+          <Flex gap={3}>
+            <Button
+              onClick={resetGrid}
+              leftIcon={<MdOutlineCancel />}
+              variant={"outline"}
+            >
+              Reset
+            </Button>
 
-          <Button
-            variant={removingItems ? "solid" : "outline"}
-            onClick={() => updateFlag("removingItems", !removingItems)}
-            leftIcon={<BsEraserFill />}
-          >
-            {removingItems ? "Removing items" : "Remove Items"}
-          </Button>
+            <Button
+              variant={removingItems ? "solid" : "outline"}
+              onClick={() => updateFlag("removingItems", !removingItems)}
+              leftIcon={<BsEraserFill />}
+            >
+              {removingItems ? "Removing" : "Remove Items"}
+            </Button>
+          </Flex>
 
           <CodeModal />
         </ButtonGroup>
