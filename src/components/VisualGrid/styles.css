@@ -7,9 +7,15 @@
   width: calc(100% - var(--sidebarWidth));
   margin-left: var(--sidebarWidth);;
   height: 100%;
-  background: var(--backgroundColor);;
   position: relative;
   overflow: auto;
+}
+
+@media screen and (max-width: 768px) {
+  .visual-grid__container{
+    width: 100%;
+    margin-left: 0;
+  }
 }
 
 .visual-grid__wrapper{

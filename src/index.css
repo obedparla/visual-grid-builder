@@ -13,6 +13,17 @@ html, body .app__container{
     height: 100%;
 }
 
+body{
+    background: red;
+}
+
 .app__container{
     display: flex;
+}
+
+
+@media screen and (max-width: 768px) {
+    .app__container{
+        display: block;
+    }
 }

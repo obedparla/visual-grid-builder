@@ -68,14 +68,14 @@ export function Sidebar() {
         <Divider mt={4} />
 
         <ButtonGroup
+          className={"sidebar__button-group"}
           colorScheme={"purple"}
           size={"sm"}
           mt={4}
-          flexWrap={"wrap"}
           gap={3}
           spacing={0}
         >
-          <Flex gap={3}>
+          <Flex gap={3} className={"sidebar__action-buttons"}>
             <Button
               onClick={resetGrid}
               leftIcon={<MdOutlineCancel />}

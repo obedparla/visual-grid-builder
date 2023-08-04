@@ -8,3 +8,35 @@
     bottom: 0;
     box-shadow: 1px 0px 4px -3px rgb(0 0 0 / 45%);
 }
+
+.sidebar__button-group{
+    flex-wrap: wrap;
+}
+
+@media screen and (max-width: 768px) {
+    .sidebar__container{
+        position: inherit;
+        max-width: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0px 2px 4px -3px rgb(0 0 0 / 45%);
+    }
+
+    .sidebar__button-group{
+        flex-wrap: inherit;
+    }
+}
+
+@media screen and (max-width: 430px) {
+    .sidebar__button-group{
+        flex-wrap: wrap;
+    }
+
+
+    .sidebar__action-buttons,
+    .sidebar__action-buttons .chakra-button{
+        width: 100%;
+    }
+}
+
