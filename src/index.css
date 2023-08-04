@@ -13,10 +13,6 @@ html, body .app__container{
     height: 100%;
 }
 
-body{
-    background: red;
-}
-
 .app__container{
     display: flex;
 }

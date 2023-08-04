@@ -16,6 +16,7 @@ import { useState } from "react";
 
 export function Header() {
   const [aboutModalOpen, aboutModalOpenSet] = useState(false);
+
   return (
     <>
       <header className={"header"}>

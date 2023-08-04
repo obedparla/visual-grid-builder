@@ -3,6 +3,7 @@ import { Sidebar } from "./components/sidebar/Sidebar.tsx";
 import { useEffect } from "react";
 import { useTemporalStore } from "./store/store.ts";
 import { Header } from "./components/Header/Header.tsx";
+import { MobileWarning } from "./components/MobileWarning/MobileWarning.tsx";
 
 export function App() {
   const { undo, redo } = useTemporalStore((state) => ({
@@ -31,6 +32,8 @@ export function App() {
   return (
     <>
       <Header />
+
+      <MobileWarning />
       <div className="app__container">
         <Sidebar />
 
