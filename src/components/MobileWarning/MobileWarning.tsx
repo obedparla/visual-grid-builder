@@ -17,8 +17,6 @@ export function MobileWarning() {
   useEffect(() => {
     const windowWidth = window.innerWidth;
 
-    console.log("windowWidth", windowWidth);
-
     if (windowWidth < 768) {
       modalOpenSet(true);
     }

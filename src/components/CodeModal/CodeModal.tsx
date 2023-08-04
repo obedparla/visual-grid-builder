@@ -78,7 +78,7 @@ export function CodeModal() {
 /* Items CSS */
 .grid-item{
   background: #c8b6ff;
-};
+}
 
 ${itemsCss}`;
 
