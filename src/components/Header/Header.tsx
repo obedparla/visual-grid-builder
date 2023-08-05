@@ -22,7 +22,7 @@ export function Header() {
       <header className={"header"}>
         <div className={"header__logo"}>
           <img src={"/logo.svg"} />
-          <Text className={"header__name"} colorScheme={"purple"}>
+          <Text className={"header__name"} color={"#805ad5"}>
             Visual Grid Builder
           </Text>
         </div>
