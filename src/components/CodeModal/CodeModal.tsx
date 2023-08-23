@@ -107,7 +107,7 @@ ${itemsCss}`;
   }
 
   return (
-    <>
+    <div className={"visual-grid__code-modal"}>
       <Button
         ml={0}
         onClick={() => {
@@ -126,7 +126,7 @@ ${itemsCss}`;
           updateFlag("isModalOpen", false);
         }}
         isCentered
-        size={"xl"}
+        size={"2xl"}
         scrollBehavior={"inside"}
       >
         <ModalOverlay />
@@ -187,6 +187,6 @@ ${itemsCss}`;
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </>
+    </div>
   );
 }
