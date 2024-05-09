@@ -5,7 +5,7 @@
 ![Visual Grid Builder](https://github.com/obedparla/visual-grid-builder/blob/main/public/showcase.png)
 
 I created this project to make it easy to design complex CSS Grid layouts.
-It allows you to aww items and to design the grid by dragging or resizing them. You can then get generated code to create the grid on your own project.
+It allows you to add items and to design the grid by dragging or resizing them. You can then get generated code to create the grid on your own project.
 
 My motivation behind this tool is to create the best, most intuitive way to use CSS grid, without
 having to understand the complicated underlying CSS specification.
